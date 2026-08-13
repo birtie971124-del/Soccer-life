@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>職業足球人生 7.0 - 完美穩定版</title>
+  <title>職業足球人生 7.0</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -48,6 +48,7 @@
     .stat-value { font-size: 1.1em; color: #1b5e20; display: block; margin-top: 2px; }
     button {
       width: 100%; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 6px;
+      -webkit-tap-highlight-color: transparent;
     }
     button:active { background: #1b5e20; }
     .section-title { font-weight: bold; margin: 6px 0; color: #1b4d24; font-size: 0.9em; }
@@ -88,7 +89,7 @@
         <option value="africa">非洲神獸 (速度/體能上限 99)</option>
       </select>
     </div>
-    <button type="button" id="start-btn">開啟職業生涯</button>
+    <button type="button" onclick="startGame()">開啟職業生涯</button>
   </div>
 
   <!-- 2. 遊戲主畫面 -->
@@ -133,307 +134,318 @@
     <!-- 訓練選擇區塊 -->
     <div id="training-section" style="background:#e8f5e9; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #a5d6a7;">
       <div class="section-title">🏋️ 選擇本季訓練重點：</div>
-      <button type="button" class="choice-btn" id="train-safe">🟢 基礎自主訓練 (成功率 85% | +2 點)</button>
-      <button type="button" class="choice-btn" id="train-intense">🟡 隊內強化特訓 (成功率 55% | +5 點)</button>
-      <button type="button" class="choice-btn" style="border-color:#d32f2f; color:#d32f2f;" id="train-extreme">🔴 地獄魔鬼特訓 (成功率 25% | +12 點 | 失敗風險大)</button>
+      <button type="button" class="choice-btn" onclick="runTraining(0.85, 'safe')">🟢 基礎自主訓練 (成功率 85% | +2 點)</button>
+      <button type="button" class="choice-btn" onclick="runTraining(0.55, 'intense')">🟡 隊內強化特訓 (成功率 55% | +5 點)</button>
+      <button type="button" class="choice-btn" style="border-color:#d32f2f; color:#d32f2f;" onclick="runTraining(0.25, 'extreme')">🔴 地獄魔鬼特訓 (成功率 25% | +12 點 | 失敗風險大)</button>
     </div>
 
     <!-- 加點區塊 -->
     <div id="points-badge" style="display:none; background:#fff3e0; padding:10px; border-radius:8px; text-align:center; margin-bottom:10px; border:1px solid #ffe082;">
       <div style="font-weight:bold; color:#e65100; font-size:0.85em;">⚡ 分配自由點數（剩餘：<span id="skill-points">0</span> 點）</div>
       <div class="train-grid">
-        <button class="train-btn" type="button" id="up-pac">+ 速度</button>
-        <button class="train-btn" type="button" id="up-sho">+ 射門</button>
-        <button class="train-btn" type="button" id="up-pas">+ 傳球</button>
-        <button class="train-btn" type="button" id="up-dri">+ 盤帶</button>
-        <button class="train-btn" type="button" id="up-def">+ 防守</button>
-        <button class="train-btn" type="button" id="up-phy">+ 體能</button>
+        <button class="train-btn" type="button" onclick="addPoint('pac')">+ 速度</button>
+        <button class="train-btn" type="button" onclick="addPoint('sho')">+ 射門</button>
+        <button class="train-btn" type="button" onclick="addPoint('pas')">+ 傳球</button>
+        <button class="train-btn" type="button" onclick="addPoint('dri')">+ 盤帶</button>
+        <button class="train-btn" type="button" onclick="addPoint('def')">+ 防守</button>
+        <button class="train-btn" type="button" onclick="addPoint('phy')">+ 體能</button>
       </div>
     </div>
 
     <!-- 轉會區塊 -->
     <div id="transfer-section" style="display:none; background:#e1f5fe; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #81d4fa;">
       <div class="section-title" id="transfer-title">📩 收到轉會邀約！</div>
-      <button type="button" class="choice-btn" id="accept-transfer">⚽ 簽署合約加盟</button>
-      <button type="button" class="choice-btn" style="border-color:#757575; color:#555;" id="reject-transfer">✖ 拒絕邀約，繼續留隊</button>
+      <button type="button" class="choice-btn" onclick="acceptTransfer()">⚽ 簽署合約加盟</button>
+      <button type="button" class="choice-btn" style="border-color:#757575; color:#555;" onclick="rejectTransfer()">✖ 拒絕邀約，繼續留隊</button>
     </div>
 
-    <button type="button" id="next-year-btn">進行下一個賽季 (Next Season)</button>
+    <button type="button" id="next-year-btn" onclick="nextSeason()">進行下一個賽季 (Next Season)</button>
   </div>
 
   <script>
-    (function() {
-      var realClubs = {
-        tier5: ["神戶勝利船", "邁阿密國際", "利雅德勝利", "博卡青年"],
-        tier4: ["萊斯特城", "漢堡", "沙爾克04", "西班牙人"],
-        tier3: ["里茲聯", "赫塔費", "維羅納", "圖盧茲"],
-        tier2: ["阿斯頓維拉", "布萊頓", "皇家蘇斯達", "里昂"],
-        tier1: ["皇家馬德里", "曼徹斯特城", "阿森納", "拜仁慕尼黑", "巴塞隆納"]
+    var realClubs = {
+      tier5: ["神戶勝利船", "邁阿密國際", "利雅德勝利", "博卡青年"],
+      tier4: ["萊斯特城", "漢堡", "沙爾克04", "西班牙人"],
+      tier3: ["里茲聯", "赫塔費", "維羅納", "圖盧茲"],
+      tier2: ["阿斯頓維拉", "布萊頓", "皇家蘇斯達", "里昂"],
+      tier1: ["皇家馬德里", "曼徹斯特城", "阿森納", "拜仁慕尼黑", "巴塞隆納"]
+    };
+
+    var raceCaps = {
+      euro:   { pac: 85, sho: 85, pas: 99, dri: 88, def: 99, phy: 88 },
+      latam:  { pac: 92, sho: 99, pas: 90, dri: 99, def: 80, phy: 85 },
+      africa: { pac: 99, sho: 85, pas: 80, dri: 88, def: 99, phy: 99 }
+    };
+
+    var p = {};
+    var pendingOffer = null;
+    var hasPendingEvent = false;
+
+    function rand() { return Math.random(); }
+
+    function startGame() {
+      var name = document.getElementById('input-name').value || "無名球星";
+      var pos = document.getElementById('input-pos').value;
+      var raceKey = document.getElementById('input-race').value;
+      
+      var startTier = rand() > 0.5 ? 5 : 4;
+      var pool = startTier === 5 ? realClubs.tier5 : realClubs.tier4;
+      var startClub = pool[Math.floor(rand() * pool.length)];
+
+      p = {
+        name: name, position: pos, race: raceKey, caps: raceCaps[raceKey],
+        age: 17, club: startClub, tier: startTier,
+        pac: Math.floor(52 + rand() * 15), sho: Math.floor(52 + rand() * 15),
+        pas: Math.floor(52 + rand() * 15), dri: Math.floor(52 + rand() * 15),
+        def: Math.floor(40 + rand() * 15), phy: Math.floor(50 + rand() * 15),
+        wage: startTier === 5 ? 1500 : 3000, balance: 5000, skillPoints: 0,
+        isInjured: false, injuryTurns: 0,
+        trophies: 0, ballonDor: 0,
+        trainingDone: false, isRetired: false
       };
 
-      var raceCaps = {
-        euro:   { pac: 85, sho: 85, pas: 99, dri: 88, def: 99, phy: 88 },
-        latam:  { pac: 92, sho: 99, pas: 90, dri: 99, def: 80, phy: 85 },
-        africa: { pac: 99, sho: 85, pas: 80, dri: 88, def: 99, phy: 99 }
-      };
+      document.getElementById('setup-card').style.display = 'none';
+      document.getElementById('game-card').style.display = 'block';
 
-      var p = {};
-      var pendingOffer = null;
-      var hasPendingEvent = false;
+      addLog('🌟 踏入足壇！' + p.name + ' 正式加盟 <span class="highlight">' + p.club + '</span>，開始職業生涯！');
+      updateUI();
+    }
 
-      function rand() { return Math.random(); }
+    function getOVR() {
+      return Math.round((p.pac + p.sho + p.pas + p.dri + p.def + p.phy) / 6);
+    }
 
-      function initApp() {
-        var startBtn = document.getElementById('start-btn');
-        if (!startBtn) return;
+    function updateUI() {
+      if (!p || p.isRetired) return;
 
-        startBtn.onclick = function() {
-          var name = document.getElementById('input-name').value || "無名球星";
-          var pos = document.getElementById('input-pos').value;
-          var raceKey = document.getElementById('input-race').value;
-          
-          var startTier = rand() > 0.5 ? 5 : 4;
-          var pool = startTier === 5 ? realClubs.tier5 : realClubs.tier4;
-          var startClub = pool[Math.floor(rand() * pool.length)];
+      document.getElementById('age').innerText = p.age;
+      document.getElementById('ovr').innerText = getOVR();
+      document.getElementById('trophies-count').innerText = p.trophies + ' 🏆 (' + p.ballonDor + ' 🥇)';
+      document.getElementById('player-status').innerText = p.name + ' | ' + p.position + ' | 效力：' + p.club;
+      document.getElementById('health-status').innerHTML = p.isInjured ? '<span class="danger">受傷 (' + p.injuryTurns + '季)</span>' : '<span style="color:#2e7d32">健康</span>';
 
-          p = {
-            name: name, position: pos, race: raceKey, caps: raceCaps[raceKey],
-            age: 17, club: startClub, tier: startTier,
-            pac: Math.floor(52 + rand() * 15), sho: Math.floor(52 + rand() * 15),
-            pas: Math.floor(52 + rand() * 15), dri: Math.floor(52 + rand() * 15),
-            def: Math.floor(40 + rand() * 15), phy: Math.floor(50 + rand() * 15),
-            wage: startTier === 5 ? 1500 : 3000, balance: 5000, skillPoints: 0,
-            isInjured: false, injuryTurns: 0,
-            trophies: 0, ballonDor: 0,
-            trainingDone: false, isRetired: false
-          };
-
-          document.getElementById('setup-card').style.display = 'none';
-          document.getElementById('game-card').style.display = 'block';
-
-          addLog('🌟 踏入足壇！' + p.name + ' 正式加盟 <span class="highlight">' + p.club + '</span>，開始職業生涯！');
-          updateUI();
-        };
-
-        // 按鈕事件繫結
-        document.getElementById('train-safe').onclick = function() { runTraining(0.85, 'safe'); };
-        document.getElementById('train-intense').onclick = function() { runTraining(0.55, 'intense'); };
-        document.getElementById('train-extreme').onclick = function() { runTraining(0.25, 'extreme'); };
-
-        document.getElementById('up-pac').onclick = function() { addPoint('pac'); };
-        document.getElementById('up-sho').onclick = function() { addPoint('sho'); };
-        document.getElementById('up-pas').onclick = function() { addPoint('pas'); };
-        document.getElementById('up-dri').onclick = function() { addPoint('dri'); };
-        document.getElementById('up-def').onclick = function() { addPoint('def'); };
-        document.getElementById('up-phy').onclick = function() { addPoint('phy'); };
-
-        document.getElementById('next-year-btn').onclick = nextSeason;
-        document.getElementById('accept-transfer').onclick = acceptTransfer;
-        document.getElementById('reject-transfer').onclick = rejectTransfer;
+      var stats = ['pac','sho','pas','dri','def','phy'];
+      for (var i = 0; i < stats.length; i++) {
+        var s = stats[i];
+        document.getElementById('num-' + s).innerText = p[s] + ' / ' + p.caps[s];
+        document.getElementById('bar-' + s).style.width = Math.min(100, Math.max(0, (p[s] / 99) * 100)) + '%';
       }
 
-      function getOVR() {
-        return Math.round((p.pac + p.sho + p.pas + p.dri + p.def + p.phy) / 6);
+      var val = Math.pow(getOVR() / 10, 3.6) * 1200;
+      document.getElementById('market-value').innerText = '€' + (val/1000000).toFixed(1) + 'M';
+      document.getElementById('weekly-wage').innerText = '€' + p.wage;
+      document.getElementById('bank-balance').innerText = '€' + Math.round(p.balance);
+
+      if (p.skillPoints > 0) {
+        document.getElementById('points-badge').style.display = 'block';
+        document.getElementById('skill-points').innerText = p.skillPoints;
+      } else {
+        document.getElementById('points-badge').style.display = 'none';
       }
 
-      function updateUI() {
-        if (!p || p.isRetired) return;
+      if (!p.trainingDone && !p.isInjured && !hasPendingEvent) {
+        document.getElementById('training-section').style.display = 'block';
+      } else {
+        document.getElementById('training-section').style.display = 'none';
+      }
+    }
 
-        document.getElementById('age').innerText = p.age;
-        document.getElementById('ovr').innerText = getOVR();
-        document.getElementById('trophies-count').innerText = p.trophies + ' 🏆 (' + p.ballonDor + ' 🥇)';
-        document.getElementById('player-status').innerText = p.name + ' | ' + p.position + ' | 效力：' + p.club;
-        document.getElementById('health-status').innerHTML = p.isInjured ? '<span class="danger">受傷 (' + p.injuryTurns + '季)</span>' : '<span style="color:#2e7d32">健康</span>';
+    function addLog(text) {
+      var logList = document.getElementById('career-log');
+      var li = document.createElement('li');
+      li.innerHTML = '[' + p.age + '歲] ' + text;
+      logList.insertBefore(li, logList.firstChild);
+    }
 
-        var stats = ['pac','sho','pas','dri','def','phy'];
-        for (var i = 0; i < stats.length; i++) {
-          var s = stats[i];
-          document.getElementById('num-' + s).innerText = p[s] + ' / ' + p.caps[s];
-          document.getElementById('bar-' + s).style.width = Math.min(100, Math.max(0, (p[s] / 99) * 100)) + '%';
-        }
+    function runTraining(rate, mode) {
+      if (p.trainingDone || hasPendingEvent) return;
+      p.trainingDone = true;
 
-        var val = Math.pow(getOVR() / 10, 3.6) * 1200;
-        document.getElementById('market-value').innerText = '€' + (val/1000000).toFixed(1) + 'M';
-        document.getElementById('weekly-wage').innerText = '€' + p.wage;
-        document.getElementById('bank-balance').innerText = '€' + Math.round(p.balance);
-
-        if (p.skillPoints > 0) {
-          document.getElementById('points-badge').style.display = 'block';
-          document.getElementById('skill-points').innerText = p.skillPoints;
+      if (rand() <= rate) {
+        var pts = (mode === 'safe') ? 2 : (mode === 'intense') ? 5 : 12;
+        p.skillPoints += pts;
+        addLog('✨ <span class="highlight">訓練效果顯著！</span> 獲得 +' + pts + ' 點自由加點數！');
+      } else {
+        if (mode === 'extreme') {
+          p.isInjured = true;
+          p.injuryTurns = Math.floor(rand() * 2) + 1;
+          var list = ['pac','sho','pas','dri','def','phy'];
+          var sub = list[Math.floor(rand() * list.length)];
+          p[sub] = Math.max(30, p[sub] - 2);
+          addLog('💥 <span class="danger">地獄特訓導致肌肉拉傷！</span> 需休養 ' + p.injuryTurns + ' 季！');
         } else {
-          document.getElementById('points-badge').style.display = 'none';
-        }
-
-        if (!p.trainingDone && !p.isInjured && !hasPendingEvent) {
-          document.getElementById('training-section').style.display = 'block';
-        } else {
-          document.getElementById('training-section').style.display = 'none';
+          addLog('💤 訓練狀態平平，未能獲得額外突破。');
         }
       }
+      updateUI();
+    }
 
-      function addLog(text) {
-        var logList = document.getElementById('career-log');
-        var li = document.createElement('li');
-        li.innerHTML = '[' + p.age + '歲] ' + text;
-        logList.insertBefore(li, logList.firstChild);
-      }
-
-      function runTraining(rate, mode) {
-        if (p.trainingDone || hasPendingEvent) return;
-        p.trainingDone = true;
-
-        if (rand() <= rate) {
-          var pts = (mode === 'safe') ? 2 : (mode === 'intense') ? 5 : 12;
-          p.skillPoints += pts;
-          addLog('✨ <span class="highlight">訓練效果顯著！</span> 獲得 +' + pts + ' 點自由加點數！');
-        } else {
-          if (mode === 'extreme') {
-            p.isInjured = true;
-            p.injuryTurns = Math.floor(rand() * 2) + 1;
-            var list = ['pac','sho','pas','dri','def','phy'];
-            var sub = list[Math.floor(rand() * list.length)];
-            p[sub] = Math.max(30, p[sub] - 2);
-            addLog('💥 <span class="danger">地獄特訓導致肌肉拉傷！</span> 需休養 ' + p.injuryTurns + ' 季！');
-          } else {
-            addLog('💤 訓練狀態平平，未能獲得額外突破。');
-          }
-        }
+    function addPoint(s) {
+      if (p.skillPoints > 0 && p[s] < p.caps[s]) {
+        p[s] += 1;
+        p.skillPoints -= 1;
         updateUI();
       }
+    }
 
-      function addPoint(s) {
-        if (p.skillPoints > 0 && p[s] < p.caps[s]) {
-          p[s] += 1;
-          p.skillPoints -= 1;
-          updateUI();
+    function triggerRandomEvent() {
+      var events = [
+        {
+          title: "📸 狂歡照片登上頭條",
+          desc: "深夜被拍到出入酒吧，新教練極度不滿！",
+          c1: "誠懇道歉並繳納罰款 (€10,000)",
+          c2: "開記者會與媒體互槓",
+          a1: function() { p.balance = Math.max(0, p.balance - 10000); addLog("⚠️ 繳納罰款並道歉，化解了更衣室危機。"); },
+          a2: function() { p.trainingDone = true; addLog("❌ 與媒體激化矛盾，被內部處罰停止訓練一季。"); }
+        },
+        {
+          title: "👟 獲得商業代言合約",
+          desc: "知名運動品牌邀請你成為品牌代言人！",
+          c1: "接受簽約 (+€50,000)",
+          c2: "爭取更高價格 (50% 機率 €100,000)",
+          a1: function() { p.balance += 50000; addLog("💰 成功入帳 €50,000 代言合約金！"); },
+          a2: function() { 
+            if(rand() > 0.5) { p.balance += 100000; addLog("🤑 談判成功！豪取 €100,000 高額代言費！"); }
+            else { addLog("❌ 談判破局，廠商取消了合作意向。"); }
+          }
+        },
+        {
+          title: "🌍 國家隊緊急徵召",
+          desc: "你獲得國家隊徵召參加盃賽！",
+          c1: "全力以赴出戰",
+          c2: "以傷病為理由婉拒留隊",
+          a1: function() { p.trophies += 1; addLog("🏆 隨國家隊創造歷史，生涯新增 1 座國家隊榮譽！"); },
+          a2: function() { p.skillPoints += 2; addLog("🏋️ 留在俱樂部閉門特訓，獲得 +2 點數。"); }
+        },
+        {
+          title: "🇸🇦 沙烏地豪門天價收購",
+          desc: "中東球會為你提供無法拒絕的巨額合約！",
+          c1: "加盟中東！(週薪 x3，存款 +€300,000)",
+          c2: "堅守歐洲賽場",
+          a1: function() { p.wage *= 3; p.balance += 300000; p.tier = 5; p.club = "利雅德勝利"; addLog("💰 你前往中東開啟淘金之旅！"); },
+          a2: function() { addLog("👑 你婉拒了金錢誘惑，留在歐洲頂級舞台！"); }
+        }
+      ];
+
+      var evt = events[Math.floor(rand() * events.length)];
+      hasPendingEvent = true;
+
+      document.getElementById('event-title').innerText = '📢 突發事件：' + evt.title;
+      document.getElementById('event-desc').innerText = evt.desc;
+
+      var choicesDiv = document.getElementById('event-choices');
+      choicesDiv.innerHTML = '';
+
+      var btn1 = document.createElement('button');
+      btn1.className = 'choice-btn';
+      btn1.innerText = '1️⃣ ' + evt.c1;
+      btn1.onclick = function() { evt.a1(); resolveEvent(); };
+
+      var btn2 = document.createElement('button');
+      btn2.className = 'choice-btn';
+      btn2.innerText = '2️⃣ ' + evt.c2;
+      btn2.onclick = function() { evt.a2(); resolveEvent(); };
+
+      choicesDiv.appendChild(btn1);
+      choicesDiv.appendChild(btn2);
+      document.getElementById('event-section').style.display = 'block';
+    }
+
+    function resolveEvent() {
+      hasPendingEvent = false;
+      document.getElementById('event-section').style.display = 'none';
+      updateUI();
+    }
+
+    function nextSeason() {
+      if (hasPendingEvent) {
+        alert('請先處理當前發生的突發事件！');
+        return;
+      }
+
+      p.age++;
+      p.balance += p.wage * 52;
+
+      if (p.age > 32) {
+        p.pac = Math.max(40, p.pac - Math.floor(rand() * 3));
+        p.phy = Math.max(40, p.phy - Math.floor(rand() * 2));
+        addLog('📉 <span class="danger">年齡漸長，速度與體能略有下降...</span>');
+      }
+
+      if (p.age >= 40) {
+        p.isRetired = true;
+        alert('🎉 恭喜！你以 ' + p.age + ' 歲高齡宣告退役！\n最終累積：' + p.trophies + ' 座冠軍，' + p.ballonDor + ' 次金球獎！');
+        addLog('👑 <span class="gold">【生涯結束】傳奇球星正式退役！</span>');
+        document.getElementById('next-year-btn').disabled = true;
+        document.getElementById('next-year-btn').innerText = '職業生涯已結束';
+        return;
+      }
+
+      if (p.isInjured) {
+        p.injuryTurns--;
+        if (p.injuryTurns <= 0) {
+          p.isInjured = false;
+          addLog('🎉 傷癒復出，重新回歸比賽！');
+        } else {
+          addLog('🚑 傷勢恢復中... (還需休養 ' + p.injuryTurns + ' 季)');
         }
       }
 
-      function triggerRandomEvent() {
-        var events = [
-          {
-            title: "📸 狂歡照片登上頭條",
-            desc: "深夜被拍到出入酒吧，新教練極度不滿！",
-            c1: "誠懇道歉並繳納罰款 (€10,000)",
-            c2: "開記者會與媒體互槓",
-            a1: function() { p.balance = Math.max(0, p.balance - 10000); addLog("⚠️ 繳納罰款並道歉，化解了更衣室危機。"); },
-            a2: function() { p.trainingDone = true; addLog("❌ 與媒體激化矛盾，被內部處罰停止訓練一季。"); }
-          },
-          {
-            title: "👟 獲得商業代言合約",
-            desc: "知名運動品牌邀請你成為品牌代言人！",
-            c1: "接受簽約 (+€50,000)",
-            c2: "爭取更高價格 (50% 機率 €100,000)",
-            a1: function() { p.balance += 50000; addLog("💰 成功入帳 €50,000 代言合約金！"); },
-            a2: function() { 
-              if(rand() > 0.5) { p.balance += 100000; addLog("🤑 談判成功！豪取 €100,000 高額代言費！"); }
-              else { addLog("❌ 談判破局，廠商取消了合作意向。"); }
-            }
-          },
-          {
-            title: "🌍 國家隊緊急徵召",
-            desc: "你獲得國家隊徵召參加盃賽！",
-            c1: "全力以赴出戰",
-            c2: "以傷病為理由婉拒留隊",
-            a1: function() { p.trophies += 1; addLog("🏆 隨國家隊創造歷史，生涯新增 1 座國家隊榮譽！"); },
-            a2: function() { p.skillPoints += 2; addLog("🏋️ 留在俱樂部閉門特訓，獲得 +2 點數。"); }
-          },
-          {
-            title: "🇸🇦 沙烏地豪門天價收購",
-            desc: "中東球會為你提供無法拒絕的巨額合約！",
-            c1: "加盟中東！(週薪 x3，存款 +€300,000)",
-            c2: "堅守歐洲賽場",
-            a1: function() { p.wage *= 3; p.balance += 300000; p.tier = 5; p.club = "利雅德勝利"; addLog("💰 你前往中東開啟淘金之旅！"); },
-            a2: function() { addLog("👑 你婉拒了金錢誘惑，留在歐洲頂級舞台！"); }
-          }
-        ];
+      var ovr = getOVR();
+      var apps = p.isInjured ? Math.floor(rand() * 8) : (28 + Math.floor(rand() * 10));
+      var goals = Math.floor(apps * (p.sho / 100) * (0.7 + rand() * 0.5));
+      var rating = (6.0 + (ovr / 30) + (rand() * 0.5)).toFixed(1);
 
-        var evt = events[Math.floor(rand() * events.length)];
-        hasPendingEvent = true;
+      addLog('📊 本季出場 ' + apps + ' 場，進球 ⚽ ' + goals + ' 個，平均評分 🌟 ' + rating);
 
-        document.getElementById('event-title').innerText = '📢 突發事件：' + evt.title;
-        document.getElementById('event-desc').innerText = evt.desc;
-
-        var choicesDiv = document.getElementById('event-choices');
-        choicesDiv.innerHTML = '';
-
-        var btn1 = document.createElement('button');
-        btn1.className = 'choice-btn';
-        btn1.innerText = '1️⃣ ' + evt.c1;
-        btn1.onclick = function() { evt.a1(); resolveEvent(); };
-
-        var btn2 = document.createElement('button');
-        btn2.className = 'choice-btn';
-        btn2.innerText = '2️⃣ ' + evt.c2;
-        btn2.onclick = function() { evt.a2(); resolveEvent(); };
-
-        choicesDiv.appendChild(btn1);
-        choicesDiv.appendChild(btn2);
-        document.getElementById('event-section').style.display = 'block';
+      if (ovr > 78 && rand() < 0.35) {
+        p.trophies += 1;
+        addLog('🏆 <span class="gold">恭喜！隨隊順利捧起聯賽冠軍獎盃！</span>');
       }
 
-      function resolveEvent() {
-        hasPendingEvent = false;
-        document.getElementById('event-section').style.display = 'none';
+      if (ovr >= 88 && rating >= 8.2 && rand() < 0.35) {
+        p.ballonDor += 1;
+        p.trophies += 1;
+        addLog('🥇 <span class="gold">✨【最高榮譽】榮獲歐洲金球獎 (Ballon d\'Or)！</span>');
+      }
+
+      p.trainingDone = false;
+
+      if (!p.isInjured && rand() < 0.40 && p.tier > 1) {
+        var targetTier = p.tier - 1;
+        var pool = realClubs['tier' + targetTier];
+        var targetClub = pool[Math.floor(rand() * pool.length)];
+        pendingOffer = { club: targetClub, tier: targetTier };
+
+        document.getElementById('transfer-title').innerText = '📩 收到來自豪門 ' + targetClub + ' 的轉會邀約！';
+        document.getElementById('transfer-section').style.display = 'block';
+      }
+
+      if (rand() < 0.50 && !p.isInjured) {
+        triggerRandomEvent();
+      }
+
+      updateUI();
+    }
+
+    function acceptTransfer() {
+      if (pendingOffer) {
+        p.club = pendingOffer.club;
+        p.tier = pendingOffer.tier;
+        p.wage = Math.round(p.wage * 1.6);
+        addLog('✍️ 正式轉會至 <span class="highlight">' + p.club + '</span>，週薪獲得大幅提升！');
+        document.getElementById('transfer-section').style.display = 'none';
+        pendingOffer = null;
         updateUI();
       }
+    }
 
-      function nextSeason() {
-        if (hasPendingEvent) {
-          alert('請先處理當前發生的突發事件！');
-          return;
-        }
-
-        p.age++;
-        p.balance += p.wage * 52;
-
-        if (p.age > 32) {
-          p.pac = Math.max(40, p.pac - Math.floor(rand() * 3));
-          p.phy = Math.max(40, p.phy - Math.floor(rand() * 2));
-          addLog('📉 <span class="danger">年齡漸長，速度與體能略有下降...</span>');
-        }
-
-        if (p.age >= 40) {
-          p.isRetired = true;
-          alert('🎉 恭喜！你以 ' + p.age + ' 歲高齡宣告退役！\n最終累積：' + p.trophies + ' 座冠軍，' + p.ballonDor + ' 次金球獎！');
-          addLog('👑 <span class="gold">【生涯結束】傳奇球星正式退役！</span>');
-          document.getElementById('next-year-btn').disabled = true;
-          document.getElementById('next-year-btn').innerText = '職業生涯已結束';
-          return;
-        }
-
-        if (p.isInjured) {
-          p.injuryTurns--;
-          if (p.injuryTurns <= 0) {
-            p.isInjured = false;
-            addLog('🎉 傷癒復出，重新回歸比賽！');
-          } else {
-            addLog('🚑 傷勢恢復中... (還需休養 ' + p.injuryTurns + ' 季)');
-          }
-        }
-
-        var ovr = getOVR();
-        var apps = p.isInjured ? Math.floor(rand() * 8) : (28 + Math.floor(rand() * 10));
-        var goals = Math.floor(apps * (p.sho / 100) * (0.7 + rand() * 0.5));
-        var rating = (6.0 + (ovr / 30) + (rand() * 0.5)).toFixed(1);
-
-        addLog('📊 本季出場 ' + apps + ' 場，進球 ⚽ ' + goals + ' 個，平均評分 🌟 ' + rating);
-
-        if (ovr > 78 && rand() < 0.35) {
-          p.trophies += 1;
-          addLog('🏆 <span class="gold">恭喜！隨隊順利捧起聯賽冠軍獎盃！</span>');
-        }
-
-        if (ovr >= 88 && rating >= 8.2 && rand() < 0.35) {
-          p.ballonDor += 1;
-          p.trophies += 1;
-          addLog('🥇 <span class="gold">✨【最高榮譽】榮獲歐洲金球獎 (Ballon d\'Or)！</span>');
-        }
-
-        p.trainingDone = false;
-
-        if (!p.isInjured && rand() < 0.40 && p.tier > 1) {
-          var targetTier = p.tier - 1;
-          var pool = realClubs['tier' + targetTier];
-          var targetClub = pool[Math.floor(rand() * pool.length)];
-          pendingOff
+    function rejectTransfer() {
+      addLog('🤝 拒絕轉會，選擇繼續留在 ' + p.club);
+      document.getElementById('transfer-section').style.display = 'none';
+      pendingOffer = null;
+      updateUI();
+    }
+  </script>
+</body>
+  </html>
