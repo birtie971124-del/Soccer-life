@@ -3,85 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>職業足球人生 6.0 - 深度經營與訓練風險版</title>
+  <title>職業足球人生 6.0</title>
   <style>
     * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, sans-serif;
       background-color: #0b1d12;
       color: #333;
-      max-width: 650px;
-      margin: 15px auto;
+      max-width: 600px;
+      margin: 10px auto;
       padding: 10px;
     }
     .card {
       background: #ffffff;
-      padding: 18px;
+      padding: 16px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
-    h1 { margin: 0 0 5px 0; color: #1b4d24; text-align: center; font-size: 22px; }
-    
-    .setup-group { margin-bottom: 12px; text-align: left; }
+    h1 { margin: 0 0 10px 0; color: #1b4d24; text-align: center; font-size: 20px; }
+    .setup-group { margin-bottom: 10px; text-align: left; }
     .setup-group label { display: block; font-weight: bold; margin-bottom: 4px; color: #1b4d24; }
     .setup-group input, .setup-group select {
       width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px;
     }
-
     .status-bar {
-      text-align: center; background: #1b4d24; color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.95em;
+      text-align: center; background: #1b4d24; color: #fff; padding: 8px; border-radius: 8px; font-weight: bold; font-size: 0.9em;
     }
     .finance-bar {
       display: flex; justify-content: space-around; background: #e8f5e9; padding: 8px; border-radius: 8px; margin-top: 8px; font-size: 0.85em; font-weight: bold; color: #2e7d32;
     }
-
     .ticker-box {
-      background: #212121;
-      color: #76ff03;
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin: 10px 0;
-      max-height: 110px;
-      overflow-y: auto;
-      font-family: monospace;
-      font-size: 0.85em;
-      box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+      background: #212121; color: #76ff03; border-radius: 8px; padding: 10px; margin: 10px 0; max-height: 120px; overflow-y: auto; font-family: monospace; font-size: 0.85em;
     }
     .ticker-box ul { list-style: none; padding: 0; margin: 0; }
     .ticker-box li { margin-bottom: 4px; border-bottom: 1px dashed #424242; padding-bottom: 2px; }
-    
-    .bar-container { margin: 12px 0; }
-    .bar-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.85em; }
-    .bar-label { width: 85px; font-weight: bold; color: #333; }
-    .bar-bg { flex: 1; background: #e0e0e0; height: 18px; border-radius: 9px; overflow: hidden; position: relative; margin: 0 8px; }
-    .bar-fill { background: linear-gradient(90deg, #4caf50, #2e7d32); height: 100%; width: 0%; transition: width 0.3s; }
-    .bar-num { width: 65px; text-align: right; font-weight: bold; color: #1b5e20; }
-
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; background: #f1f8e9; padding: 10px; border-radius: 8px; margin-bottom: 10px;
-    }
-    .stat-box { font-size: 0.8em; font-weight: bold; color: #555; }
-    .stat-value { font-size: 1.15em; color: #1b5e20; display: block; margin-top: 2px; }
-
+    .bar-row { display: flex; align-items: center; margin-bottom: 6px; font-size: 0.85em; }
+    .bar-label { width: 80px; font-weight: bold; }
+    .bar-bg { flex: 1; background: #e0e0e0; height: 16px; border-radius: 8px; overflow: hidden; margin: 0 8px; }
+    .bar-fill { background: #4caf50; height: 100%; width: 0%; transition: width 0.3s; }
+    .bar-num { width: 60px; text-align: right; font-weight: bold; color: #1b5e20; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; background: #f1f8e9; padding: 8px; border-radius: 8px; margin-bottom: 10px; }
+    .stat-box { font-size: 0.75em; font-weight: bold; color: #555; }
+    .stat-value { font-size: 1.1em; color: #1b5e20; display: block; margin-top: 2px; }
     button {
       width: 100%; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 6px;
     }
-    button:hover { background: #1b5e20; }
-    button:disabled { background: #b0bec5; cursor: not-allowed; }
-
-    .modal-overlay { background: #fffde7; border: 2px solid #fbc02d; padding: 12px; border-radius: 8px; margin: 10px 0; }
-    .choice-btn { background: #ffffff; color: #2e7d32; border: 1.5px solid #2e7d32; margin-top: 6px; text-align: left; padding: 8px 12px; font-size: 0.9em; width: 100%; cursor: pointer; border-radius: 6px; font-weight: bold; }
-    .choice-btn:hover { background: #e8f5e9; }
-
-    .train-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+    button:active { background: #1b5e20; }
+    .section-title { font-weight: bold; margin: 8px 0 4px 0; color: #1b4d24; font-size: 0.9em; }
+    .train-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 4px; }
     .train-btn { background: #ff9800; color: #fff; font-size: 12px; padding: 8px; margin-top: 0; }
-    .train-btn:hover { background: #f57c00; }
-
-    .highlight-club { color: #0288d1; font-weight: bold; }
-    .risk-high { color: #d32f2f; font-weight: bold; }
-    .health-badge { background: #c8e6c9; color: #2e7d32; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; }
-    .injured-badge { background: #ffcdd2; color: #c62828; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; }
+    .choice-btn { background: #ffffff; color: #2e7d32; border: 1.5px solid #2e7d32; margin-top: 6px; text-align: left; padding: 8px 10px; font-size: 0.85em; width: 100%; cursor: pointer; border-radius: 6px; font-weight: bold; }
+    .highlight { color: #0288d1; font-weight: bold; }
+    .danger { color: #d32f2f; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -106,18 +80,17 @@
     <div class="setup-group">
       <label>種族天賦血統：</label>
       <select id="input-race">
-        <option value="euro">歐洲體系 (戰術組織與傳球天賦強, 傳/防上限 99)</option>
-        <option value="latam">美洲爆發 (盤帶與射門技巧極佳, 盤/射上限 99)</option>
-        <option value="africa">非洲神獸 (速度與身體對抗絕頂, 速/體上限 99)</option>
+        <option value="euro">歐洲體系 (傳/防上限 99)</option>
+        <option value="latam">美洲爆發 (盤/射上限 99)</option>
+        <option value="africa">非洲神獸 (速/體上限 99)</option>
       </select>
     </div>
-    <button type="button" id="start-btn" onclick="startGame()">開始職業生涯</button>
+    <button type="button" id="start-btn">開始職業生涯</button>
   </div>
 
   <!-- 2. 主遊戲介面 -->
   <div class="card" id="game-card" style="display:none;">
     <h1 id="player-title">⚽ 職業足球人生</h1>
-    <p style="text-align:center; color:#666; font-size:0.8em; margin:2px 0 6px 0;" id="seed-display"></p>
     
     <div class="status-bar" id="player-status"></div>
     
@@ -131,7 +104,13 @@
       <div>存款：<span id="bank-balance"></span></div>
     </div>
 
-    <!-- 長條圖能力表 -->
+    <div class="stats-grid" style="margin-top:8px;">
+      <div class="stat-box">年齡<span class="stat-value" id="age">17</span></div>
+      <div class="stat-box">總評(OVR)<span class="stat-value" id="ovr">60</span></div>
+      <div class="stat-box">身體狀態<span class="stat-value" id="health-status">健康</span></div>
+      <div class="stat-box">上季評分<span class="stat-value" id="last-rating">0.0</span></div>
+    </div>
+
     <div class="bar-container">
       <div class="bar-row"><span class="bar-label">速度 (PAC)</span><div class="bar-bg"><div class="bar-fill" id="bar-pac"></div></div><span class="bar-num" id="num-pac"></span></div>
       <div class="bar-row"><span class="bar-label">射門 (SHO)</span><div class="bar-bg"><div class="bar-fill" id="bar-sho"></div></div><span class="bar-num" id="num-sho"></span></div>
@@ -141,329 +120,236 @@
       <div class="bar-row"><span class="bar-label">體能 (PHY)</span><div class="bar-bg"><div class="bar-fill" id="bar-phy"></div></div><span class="bar-num" id="num-phy"></span></div>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-box">年齡<span class="stat-value" id="age">17</span></div>
-      <div class="stat-box">總評(OVR)<span class="stat-value" id="ovr">60</span></div>
-      <div class="stat-box">身體狀態<span class="stat-value" id="health-status">健康</span></div>
-      <div class="stat-box">上季評分<span class="stat-value" id="last-rating">0.0</span></div>
+    <!-- 訓練選擇區塊 -->
+    <div id="training-section" style="background:#e8f5e9; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #a5d6a7;">
+      <div class="section-title">🏋️ 選擇本季訓練強度：</div>
+      <button type="button" class="choice-btn" id="train-safe">🟢 穩健訓練 (成功率 80% | +2 點)</button>
+      <button type="button" class="choice-btn" id="train-intense">🟡 密集特訓 (成功率 50% | +5 點)</button>
+      <button type="button" class="choice-btn" style="border-color:#d32f2f; color:#d32f2f;" id="train-extreme">🔴 魔鬼特訓 (成功率 20% | +12 點 | 失敗受傷降能力)</button>
     </div>
 
-    <div id="interactive-container"></div>
-
-    <div id="points-badge" style="display:none; background:#fff3e0; padding:10px; border-radius:8px; text-align:center; font-size:0.85em; font-weight:bold; color:#e65100; margin-bottom:10px; border:2px solid #ffe082;">
-      ⚡ 請分配自由點數（剩餘：<span id="skill-points">0</span> 點）
+    <!-- 加點區塊 -->
+    <div id="points-badge" style="display:none; background:#fff3e0; padding:10px; border-radius:8px; text-align:center; margin-bottom:10px; border:1px solid #ffe082;">
+      <div style="font-weight:bold; color:#e65100; font-size:0.85em;">⚡ 分配自由點數（剩餘：<span id="skill-points">0</span> 點）</div>
       <div class="train-grid">
-        <button class="train-btn" type="button" onclick="upgradeStat('pac')">+ 速度 <span id="cost-pac"></span></button>
-        <button class="train-btn" type="button" onclick="upgradeStat('sho')">+ 射門 <span id="cost-sho"></span></button>
-        <button class="train-btn" type="button" onclick="upgradeStat('pas')">+ 傳球 <span id="cost-pas"></span></button>
-        <button class="train-btn" type="button" onclick="upgradeStat('dri')">+ 盤帶 <span id="cost-dri"></span></button>
-        <button class="train-btn" type="button" onclick="upgradeStat('def')">+ 防守 <span id="cost-def"></span></button>
-        <button class="train-btn" type="button" onclick="upgradeStat('phy')">+ 體能 <span id="cost-phy"></span></button>
+        <button class="train-btn" type="button" id="up-pac">+ 速度</button>
+        <button class="train-btn" type="button" id="up-sho">+ 射門</button>
+        <button class="train-btn" type="button" id="up-pas">+ 傳球</button>
+        <button class="train-btn" type="button" id="up-dri">+ 盤帶</button>
+        <button class="train-btn" type="button" id="up-def">+ 防守</button>
+        <button class="train-btn" type="button" id="up-phy">+ 體能</button>
       </div>
     </div>
 
-    <button id="next-year-btn" type="button" onclick="nextYear()">進行下一個賽季 (Next Season)</button>
-    <button type="button" style="background:#0288d1; font-size:12px; padding:8px;" onclick="copyShareLink()">複製 Seed 分享連結</button>
+    <!-- 轉會區塊 -->
+    <div id="transfer-section" style="display:none; background:#e1f5fe; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #81d4fa;">
+      <div class="section-title" id="transfer-title">📩 收到轉會邀約！</div>
+      <button type="button" class="choice-btn" id="accept-transfer">⚽ 接受轉會</button>
+      <button type="button" class="choice-btn" style="border-color:#757575; color:#555;" id="reject-transfer">✖ 拒絕留隊</button>
+    </div>
+
+    <button type="button" id="next-year-btn">進行下一個賽季 (Next Season)</button>
   </div>
 
   <script>
-    // 萬用相容性隨機數生成器
-    function simpleRandom(seed) {
-      var x = Math.sin(seed++) * 10000;
-      return x - Math.floor(x);
-    }
+    // 綁定 DOM 與點擊事件以確保 100% 觸發
+    window.onload = function() {
+      
+      var realClubs = {
+        tier5: ["神戶勝利船", "邁阿密國際", "利雅德勝利", "博卡青年"],
+        tier4: ["萊斯特城", "漢堡", "沙爾克04", "西班牙人"],
+        tier3: ["里茲聯", "赫塔費", "維羅納", "圖盧茲"],
+        tier2: ["阿斯頓維拉", "布萊頓", "皇家蘇斯達", "里昂"],
+        tier1: ["皇家馬德里", "曼徹斯特城", "阿森納", "拜仁慕尼黑", "巴塞隆納"]
+      };
 
-    function hashString(str) {
-      var hash = 0;
-      if (str.length === 0) return hash;
-      for (var i = 0; i < str.length; i++) {
-        var char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash |= 0;
-      }
-      return Math.abs(hash) + 1;
-    }
+      var raceCaps = {
+        euro:   { pac: 85, sho: 85, pas: 99, dri: 88, def: 99, phy: 88, name: "歐洲體系" },
+        latam:  { pac: 92, sho: 99, pas: 90, dri: 99, def: 80, phy: 85, name: "美洲爆發" },
+        africa: { pac: 99, sho: 85, pas: 80, dri: 88, def: 99, phy: 99, name: "非洲神獸" }
+      };
 
-    var urlParams = new URLSearchParams(window.location.search);
-    var seedStr = urlParams.get('seed') || Math.random().toString(36).substring(2, 10);
-    var currentSeed = hashString(seedStr);
+      var p = {}; // player
+      var pendingOffer = null;
 
-    function rng() {
-      currentSeed++;
-      return simpleRandom(currentSeed);
-    }
+      function rand() { return Math.random(); }
 
-    var realClubs = {
-      tier5: ["神戶勝利船", "邁阿密國際", "利雅德勝利", "凱爾特人", "博卡青年", "洛杉磯FC"],
-      tier4: ["萊斯特城", "漢堡", "沙爾克04", "帕爾馬", "西班牙人", "桑德蘭"],
-      tier3: ["里茲聯", "赫塔費", "維羅納", "奧格斯堡", "圖盧茲", "波爾圖"],
-      tier2: ["阿斯頓維拉", "布萊頓", "皇家蘇斯達", "亞特蘭大", "法蘭克福", "里昂"],
-      tier1: ["皇家馬德里", "曼徹斯特城", "阿森納", "拜仁慕尼黑", "巴塞隆納", "國際米蘭", "巴黎聖日耳曼"]
-    };
-
-    var raceCaps = {
-      euro:   { pac: 85, sho: 85, pas: 99, dri: 88, def: 99, phy: 88, name: "歐洲體系" },
-      latam:  { pac: 92, sho: 99, pas: 90, dri: 99, def: 80, phy: 85, name: "美洲爆發" },
-      africa: { pac: 99, sho: 85, pas: 80, dri: 88, def: 99, phy: 99, name: "非洲神獸" }
-    };
-
-    var player = {};
-
-    function startGame() {
-      try {
+      document.getElementById('start-btn').onclick = function() {
         var name = document.getElementById('input-name').value || "無名球星";
         var pos = document.getElementById('input-pos').value;
         var raceKey = document.getElementById('input-race').value;
         
-        var startTier = rng() > 0.5 ? 5 : 4;
-        var startPool = startTier === 5 ? realClubs.tier5 : realClubs.tier4;
-        var startClub = startPool[Math.floor(rng() * startPool.length)];
+        var startTier = rand() > 0.5 ? 5 : 4;
+        var pool = startTier === 5 ? realClubs.tier5 : realClubs.tier4;
+        var startClub = pool[Math.floor(rand() * pool.length)];
 
-        player = {
-          name: name,
-          position: pos,
-          race: raceKey,
-          caps: raceCaps[raceKey],
-          age: 17,
-          club: startClub,
-          tier: startTier,
-          pac: Math.floor(50 + rng() * 22),
-          sho: Math.floor(50 + rng() * 22),
-          pas: Math.floor(50 + rng() * 22),
-          dri: Math.floor(50 + rng() * 22),
-          def: Math.floor(40 + rng() * 20),
-          phy: Math.floor(50 + rng() * 22),
-          wage: startTier === 5 ? 1500 : 3000,
-          balance: 5000,
-          skillPoints: 0,
-          lastGoals: 0,
-          lastRating: "0.0",
-          isInjured: false,
-          injuryTurns: 0,
-          isRetired: false,
-          pendingChoice: false,
-          eventsFinished: true
+        p = {
+          name: name, position: pos, race: raceKey, caps: raceCaps[raceKey],
+          age: 17, club: startClub, tier: startTier,
+          pac: Math.floor(50 + rand() * 20), sho: Math.floor(50 + rand() * 20),
+          pas: Math.floor(50 + rand() * 20), dri: Math.floor(50 + rand() * 20),
+          def: Math.floor(40 + rand() * 20), phy: Math.floor(50 + rand() * 20),
+          wage: startTier === 5 ? 1500 : 3000, balance: 5000, skillPoints: 0,
+          lastRating: "0.0", isInjured: false, injuryTurns: 0,
+          trainingDone: false, nextSeasonReady: false
         };
 
         document.getElementById('setup-card').style.display = 'none';
         document.getElementById('game-card').style.display = 'block';
-        document.getElementById('seed-display').innerText = 'Seed：' + seedStr;
-        document.getElementById('player-title').innerText = '⚽ ' + player.name + ' 的職業生涯';
 
-        addLog('踏入足壇！' + player.name + ' 出道加盟 <span class="highlight-club">' + player.club + '</span> (' + player.caps.name + ')');
+        addLog('踏入足壇！' + p.name + ' 正式加盟 <span class="highlight">' + p.club + '</span>');
         updateUI();
-      } catch (err) {
-        alert("遊戲初始化失敗：" + err.message);
-      }
-    }
+      };
 
-    function getOVR() {
-      return Math.round((player.pac + player.sho + player.pas + player.dri + player.def + player.phy) / 6);
-    }
-
-    function getUpgradeCost(val) {
-      if (val < 60) return 1;
-      if (val < 75) return 2;
-      if (val < 85) return 3;
-      return 4;
-    }
-
-    function getMarketValue() {
-      var ovr = getOVR();
-      var val = Math.pow(ovr / 10, 3.5) * 1000;
-      if (player.age > 30) val *= (1 - (player.age - 30) * 0.15);
-      return Math.max(50000, Math.round(val));
-    }
-
-    function updateUI() {
-      document.getElementById('age').innerText = player.age;
-      document.getElementById('ovr').innerText = getOVR();
-      document.getElementById('last-rating').innerText = player.lastRating;
-      document.getElementById('player-status').innerText = player.name + ' | ' + player.position + ' | 效力：' + player.club;
-      
-      var healthEl = document.getElementById('health-status');
-      if (player.isInjured) {
-        healthEl.innerHTML = '<span class="injured-badge">受傷中 (' + player.injuryTurns + '季)</span>';
-      } else {
-        healthEl.innerHTML = '<span class="health-badge">健康</span>';
+      function getOVR() {
+        return Math.round((p.pac + p.sho + p.pas + p.dri + p.def + p.phy) / 6);
       }
 
-      var stats = ['pac','sho','pas','dri','def','phy'];
-      for (var i = 0; i < stats.length; i++) {
-        var stat = stats[i];
-        var val = player[stat];
-        var cap = player.caps[stat];
-        var cost = getUpgradeCost(val);
-        document.getElementById('num-' + stat).innerText = val + ' / ' + cap;
-        document.getElementById('bar-' + stat).style.width = ((val / 99) * 100) + '%';
-        document.getElementById('cost-' + stat).innerText = '(' + cost + 'pt)';
-      }
+      function updateUI() {
+        document.getElementById('age').innerText = p.age;
+        document.getElementById('ovr').innerText = getOVR();
+        document.getElementById('last-rating').innerText = p.lastRating;
+        document.getElementById('player-status').innerText = p.name + ' | ' + p.position + ' | 效力：' + p.club;
+        document.getElementById('health-status').innerHTML = p.isInjured ? '<span class="danger">受傷 (' + p.injuryTurns + '季)</span>' : '<span style="color:#2e7d32">健康</span>';
 
-      document.getElementById('market-value').innerText = '€' + (getMarketValue()/1000000).toFixed(1) + 'M';
-      document.getElementById('weekly-wage').innerText = '€' + player.wage.toLocaleString();
-      document.getElementById('bank-balance').innerText = '€' + Math.round(player.balance).toLocaleString();
+        var stats = ['pac','sho','pas','dri','def','phy'];
+        for (var i = 0; i < stats.length; i++) {
+          var s = stats[i];
+          document.getElementById('num-' + s).innerText = p[s] + ' / ' + p.caps[s];
+          document.getElementById('bar-' + s).style.width = ((p[s] / 99) * 100) + '%';
+        }
 
-      var pb = document.getElementById('points-badge');
-      if (player.eventsFinished && player.skillPoints > 0) {
-        pb.style.display = 'block';
-        document.getElementById('skill-points').innerText = player.skillPoints;
-      } else { 
-        pb.style.display = 'none'; 
-      }
+        var val = Math.pow(getOVR() / 10, 3.5) * 1000;
+        document.getElementById('market-value').innerText = '€' + (val/1000000).toFixed(1) + 'M';
+        document.getElementById('weekly-wage').innerText = '€' + p.wage;
+        document.getElementById('bank-balance').innerText = '€' + Math.round(p.balance);
 
-      var nextBtn = document.getElementById('next-year-btn');
-      if (player.pendingChoice) {
-        nextBtn.disabled = true;
-        nextBtn.innerText = "請先進行決策選項...";
-      } else if (!player.isRetired) {
-        nextBtn.disabled = false;
-        nextBtn.innerText = "進行下一個賽季 (Next Season)";
-      }
-    }
-
-    function addLog(text) {
-      var logList = document.getElementById('career-log');
-      var li = document.createElement('li');
-      li.innerHTML = '[' + player.age + '歲] ' + text;
-      logList.insertBefore(li, logList.firstChild);
-      document.querySelector('.ticker-box').scrollTop = 0;
-    }
-
-    function upgradeStat(stat) {
-      var cost = getUpgradeCost(player[stat]);
-      if (player.skillPoints < cost) {
-        alert('技能點數不足！提升此階段需要 ' + cost + ' 點。');
-        return;
-      }
-      if (player[stat] >= player.caps[stat]) {
-        alert('已達到該種族的屬性上限 (' + player.caps[stat] + ')！');
-        return;
-      }
-      player[stat] += 1;
-      player.skillPoints -= cost;
-      updateUI();
-    }
-
-    function promptTrainingChoice() {
-      player.pendingChoice = true;
-
-      if (player.isInjured) {
-        player.injuryTurns--;
-        if (player.injuryTurns <= 0) {
-          player.isInjured = false;
-          addLog('🎉 <span class="highlight-club">身體康復！</span> 你已經恢復健康，本季可以正常參賽訓練。');
+        // 點數區塊
+        if (p.skillPoints > 0) {
+          document.getElementById('points-badge').style.display = 'block';
+          document.getElementById('skill-points').innerText = p.skillPoints;
         } else {
-          addLog('🚑 養傷中... 仍需休養 ' + player.injuryTurns + ' 個賽季。無法進行高強度訓練。');
-          player.pendingChoice = false;
-          finishSeasonLogic();
-          return;
+          document.getElementById('points-badge').style.display = 'none';
+        }
+
+        // 訓練選擇顯示控制
+        if (!p.trainingDone && !p.isInjured) {
+          document.getElementById('training-section').style.display = 'block';
+        } else {
+          document.getElementById('training-section').style.display = 'none';
         }
       }
 
-      var html = '<div class="modal-overlay" style="background:#e8f5e9; border-color:#2e7d32;">' +
-        '<strong>🏋️ 本賽季訓練強度賭局 (Risk & Reward)</strong>' +
-        '<p style="margin:4px 0 8px 0; font-size:0.85em; color:#444;">選擇本賽季的訓練計畫：</p>' +
-        '<button type="button" class="choice-btn" onclick="executeTraining(0.80, \'safe\')">🟢 穩健訓練 (成功率 80% | 成功 +2 點 | 失敗無懲罰)</button>' +
-        '<button type="button" class="choice-btn" onclick="executeTraining(0.50, \'intense\')">🟡 密集特訓 (成功率 50% | 成功 +5 點 | 失敗暫時疲勞)</button>' +
-        '<button type="button" class="choice-btn" style="border-color:#d32f2f; color:#d32f2f;" onclick="executeTraining(0.20, \'extreme\')">🔴 魔鬼極限訓練 (成功率 20% | 成功 +12 點 | 失敗嚴重受傷 + 能力扣減)</button>' +
-        '</div>';
+      function addLog(text) {
+        var logList = document.getElementById('career-log');
+        var li = document.createElement('li');
+        li.innerHTML = '[' + p.age + '歲] ' + text;
+        logList.insertBefore(li, logList.firstChild);
+      }
 
-      document.getElementById('interactive-container').innerHTML = html;
-      updateUI();
-    }
+      // 訓練執行
+      function runTraining(rate, mode) {
+        if (p.trainingDone) return;
+        p.trainingDone = true;
 
-    function executeTraining(rate, mode) {
-      document.getElementById('interactive-container').innerHTML = '';
-      player.pendingChoice = false;
-      var roll = rng();
+        if (rand() <= rate) {
+          var pts = (mode === 'safe') ? 2 : (mode === 'intense') ? 5 : 12;
+          p.skillPoints += pts;
+          addLog('✨ <span class="highlight">訓練成功！</span> 獲得 +' + pts + ' 點自由點數！');
+        } else {
+          if (mode === 'extreme') {
+            p.isInjured = true;
+            p.injuryTurns = Math.floor(rand() * 2) + 1;
+            var list = ['pac','sho','pas','dri','def','phy'];
+            var sub = list[Math.floor(rand() * list.length)];
+            p[sub] = Math.max(30, p[sub] - 2);
+            addLog('💥 <span class="danger">魔鬼特訓失敗嚴重受傷！</span> 休養 ' + p.injuryTurns + ' 季，且 ' + sub.toUpperCase() + ' -2');
+          } else {
+            addLog('💤 訓練效果不佳，未取得額外點數。');
+          }
+        }
+        updateUI();
+      }
 
-      if (roll <= rate) {
-        var pts = (mode === 'safe') ? 2 : (mode === 'intense') ? 5 : 12;
-        player.skillPoints += pts;
-        addLog('✨ <span class="highlight-club">訓練大獲成功！</span> 獲得了 <strong>+' + pts + '</strong> 自由點數！');
-      } else {
-        if (mode === 'safe') {
-          addLog('💤 穩健訓練未達到預期效果，本季無獲得額外訓練點數。');
-        } else if (mode === 'intense') {
-          addLog('⚠️ 高強度訓練導致肌肉疲勞，未能獲得訓練點數。');
-        } else if (mode === 'extreme') {
-          player.isInjured = true;
-          player.injuryTurns = Math.floor(rng() * 2) + 1;
-          
-          var statsList = ['pac', 'sho', 'pas', 'dri', 'def', 'phy'];
-          var statToDeduct = statsList[Math.floor(rng() * statsList.length)];
-          var lossAmt = Math.floor(rng() * 2) + 2;
-          player[statToDeduct] = Math.max(30, player[statToDeduct] - lossAmt);
+      document.getElementById('train-safe').onclick = function() { runTraining(0.8, 'safe'); };
+      document.getElementById('train-intense').onclick = function() { runTraining(0.5, 'intense'); };
+      document.getElementById('train-extreme').onclick = function() { runTraining(0.2, 'extreme'); };
 
-          addLog('💥 <span class="risk-high">魔鬼特訓拉傷！</span> 遭受重傷將休養 ' + player.injuryTurns + ' 季，且能力【' + statToDeduct.toUpperCase() + '】下降了 -' + lossAmt + ' 點！');
+      // 加點按鈕
+      function addPoint(s) {
+        if (p.skillPoints > 0 && p[s] < p.caps[s]) {
+          p[s] += 1;
+          p.skillPoints -= 1;
+          updateUI();
         }
       }
+      document.getElementById('up-pac').onclick = function() { addPoint('pac'); };
+      document.getElementById('up-sho').onclick = function() { addPoint('sho'); };
+      document.getElementById('up-pas').onclick = function() { addPoint('pas'); };
+      document.getElementById('up-dri').onclick = function() { addPoint('dri'); };
+      document.getElementById('up-def').onclick = function() { addPoint('def'); };
+      document.getElementById('up-phy').onclick = function() { addPoint('phy'); };
 
-      finishSeasonLogic();
-    }
+      // 進行下一季
+      document.getElementById('next-year-btn').onclick = function() {
+        p.age++;
+        p.balance += p.wage * 52;
 
-    function finishSeasonLogic() {
-      var ovr = getOVR();
-      var apps = player.isInjured ? Math.floor(5 + rng() * 10) : Math.floor(28 + rng() * 10);
-      var baseGoals = (player.sho * 0.3 + player.pac * 0.2) / 10;
-      var goals = Math.max(0, Math.floor(apps * (baseGoals / 15) * (0.8 + rng() * 0.5)));
-      var rating = (6.0 + (ovr / 30) + (goals / Math.max(1, apps)) * 2 + (rng() * 0.8 - 0.4)).toFixed(1);
+        // 處理傷勢
+        if (p.isInjured) {
+          p.injuryTurns--;
+          if (p.injuryTurns <= 0) {
+            p.isInjured = false;
+            addLog('🎉 傷勢痊癒，重新回到球場！');
+          } else {
+            addLog('🚑 傷勢未癒，持續休養中... (剩餘 ' + p.injuryTurns + ' 季)');
+          }
+        }
 
-      player.lastGoals = goals;
-      player.lastRating = rating;
-      addLog('📊 本季出場 ' + apps + ' 次，進球 ⚽ <strong>' + goals + '</strong> 個，評分 🌟 <strong>' + rating + '</strong>');
+        // 賽季結算
+        var apps = p.isInjured ? 8 : 32;
+        var goals = Math.floor(apps * (p.sho / 100) * (0.8 + rand() * 0.4));
+        var rating = (6.0 + (getOVR() / 30) + (rand() * 0.6)).toFixed(1);
+        p.lastRating = rating;
 
-      if (rng() < 0.35 && player.tier > 1 && !player.isInjured) {
-        triggerTransfer();
-      } else {
-        player.eventsFinished = true;
-      }
-      updateUI();
-    }
+        addLog('📊 本季出場 ' + apps + ' 場，進球 ⚽ ' + goals + ' 個，評分 🌟 ' + rating);
 
-    function nextYear() {
-      if (player.isRetired || player.pendingChoice) return;
-      player.age++;
-      player.eventsFinished = false;
+        // 重置訓練狀態
+        p.trainingDone = false;
 
-      player.balance += player.wage * 52;
-      promptTrainingChoice();
-    }
+        // 轉會判定
+        if (!p.isInjured && rand() < 0.35 && p.tier > 1) {
+          var targetTier = p.tier - 1;
+          var pool = realClubs['tier' + targetTier];
+          var targetClub = pool[Math.floor(rand() * pool.length)];
+          pendingOffer = { club: targetClub, tier: targetTier };
 
-    function triggerTransfer() {
-      player.pendingChoice = true;
-      var targetTier = player.tier - 1;
-      var pool = realClubs['tier' + targetTier];
-      var clubA = pool[Math.floor(rng() * pool.length)];
+          document.getElementById('transfer-title').innerText = '📩 收到來自 ' + targetClub + ' 的轉會邀約！';
+          document.getElementById('transfer-section').style.display = 'block';
+        }
 
-      document.getElementById('interactive-container').innerHTML = 
-        '<div class="modal-overlay" style="border-color:#0288d1; background:#e1f5fe;">' +
-        '<strong>📩 收到更高聯賽級別轉會邀約！</strong>' +
-        '<button type="button" class="choice-btn" onclick="acceptTransfer(\'' + clubA + '\', ' + targetTier + ')">⚽ 加盟 <strong>' + clubA + '</strong> (週薪 €' + Math.round(player.wage*1.6).toLocaleString() + ')</button>' +
-        '<button type="button" class="choice-btn" style="border-color:#757575;" onclick="rejectChoice()">✖ 拒絕，繼續留隊</button>' +
-        '</div>';
-      updateUI();
-    }
+        updateUI();
+      };
 
-    function acceptTransfer(club, tier) {
-      player.club = club;
-      player.tier = tier;
-      player.wage = Math.round(player.wage * 1.6);
-      player.pendingChoice = false;
-      player.eventsFinished = true;
-      document.getElementById('interactive-container').innerHTML = '';
-      addLog('✍️ 完成轉會！正式加盟更高層級球隊 <span class="highlight-club">' + club + '</span>！');
-      updateUI();
-    }
+      document.getElementById('accept-transfer').onclick = function() {
+        if (pendingOffer) {
+          p.club = pendingOffer.club;
+          p.tier = pendingOffer.tier;
+          p.wage = Math.round(p.wage * 1.5);
+          addLog('✍️ 成功轉會至 <span class="highlight">' + p.club + '</span>！');
+          document.getElementById('transfer-section').style.display = 'none';
+          pendingOffer = null;
+          updateUI();
+        }
+      };
 
-    function rejectChoice() {
-      player.pendingChoice = false;
-      player.eventsFinished = true;
-      document.getElementById('interactive-container').innerHTML = '';
-      addLog('🤝 選擇留隊繼續效力。');
-      updateUI();
-    }
-
-    function copyShareLink() {
-      try {
-        navigator.clipboard.writeText(wind
+      document.getElementById('reject-transfer').onclick = function() {
+        addLog('🤝 拒絕了轉會邀約，選擇留在 ' + p.club);
+        document.getElementById('transfer-section').style.display = 'none';
+        pendingOffer = null;
+        updateUI();
+      };
+    };
+  </script>
+</body>
+                                                                                                                                       </html>
