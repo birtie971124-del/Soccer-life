@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>職業足球人生 5.0</title>
+  <title>職業足球人生 6.0 - 深度經營版</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -23,7 +23,6 @@
     }
     h1 { margin: 0 0 5px 0; color: #1b4d24; text-align: center; font-size: 22px; }
     
-    /* 建角畫面 */
     .setup-group { margin-bottom: 12px; text-align: left; }
     .setup-group label { display: block; font-weight: bold; margin-bottom: 4px; color: #1b4d24; }
     .setup-group input, .setup-group select {
@@ -37,7 +36,6 @@
       display: flex; justify-content: space-around; background: #e8f5e9; padding: 8px; border-radius: 8px; margin-top: 8px; font-size: 0.85em; font-weight: bold; color: #2e7d32;
     }
 
-    /* 置頂廣播紀錄盒 (即時查看) */
     .ticker-box {
       background: #212121;
       color: #76ff03;
@@ -53,7 +51,6 @@
     .ticker-box ul { list-style: none; padding: 0; margin: 0; }
     .ticker-box li { margin-bottom: 4px; border-bottom: 1px dashed #424242; padding-bottom: 2px; }
     
-    /* 長條圖顯示能力 */
     .bar-container { margin: 12px 0; }
     .bar-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.85em; }
     .bar-label { width: 85px; font-weight: bold; color: #333; }
@@ -66,8 +63,6 @@
     }
     .stat-box { font-size: 0.8em; font-weight: bold; color: #555; }
     .stat-value { font-size: 1.15em; color: #1b5e20; display: block; margin-top: 2px; }
-    
-    .trophy-cabinet { background: #fff8e1; border: 1px solid #ffe082; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; }
 
     button {
       width: 100%; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 6px;
@@ -83,15 +78,15 @@
     .train-btn { background: #ff9800; color: #fff; font-size: 12px; padding: 8px; margin-top: 0; }
     .train-btn:hover { background: #f57c00; }
 
-    .highlight-club { color: #40c4ff; font-weight: bold; }
-    .highlight-gold { color: #ffd700; font-weight: bold; }
+    .highlight-club { color: #0288d1; font-weight: bold; }
+    .risk-high { color: #d32f2f; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <!-- 1. 初始建角畫面 -->
+  <!-- 1. 建角畫面 -->
   <div class="card" id="setup-card">
-    <h1>⚽ 建立你的足球員</h1>
+    <h1>⚽ 建立你的足球員 (v6.0)</h1>
     <div class="setup-group">
       <label>球員姓名：</label>
       <input type="text" id="input-name" value="梅西二世">
@@ -117,14 +112,13 @@
     <button onclick="startGame()">開始職業生涯</button>
   </div>
 
-  <!-- 2. 主遊戲介面 (預設隱藏) -->
+  <!-- 2. 主遊戲介面 -->
   <div class="card" id="game-card" style="display:none;">
     <h1 id="player-title">⚽ 職業足球人生</h1>
     <p style="text-align:center; color:#666; font-size:0.8em; margin:2px 0 6px 0;" id="seed-display"></p>
     
     <div class="status-bar" id="player-status"></div>
     
-    <!-- 置頂廣播播報 (玩家不必拉到最下面) -->
     <div class="ticker-box">
       <ul id="career-log"></ul>
     </div>
@@ -152,24 +146,17 @@
       <div class="stat-box">上季評分<span class="stat-value" id="last-rating">0.0</span></div>
     </div>
 
-    <div class="trophy-cabinet">
-      <div style="font-weight:bold; color:#f57f17; font-size:0.85em;">🏆 榮譽櫃 (Trophy Cabinet)</div>
-      <div id="trophies-display" style="font-size:1em; margin-top:2px;">尚未獲得榮譽</div>
-    </div>
-
-    <!-- 互動決策容器 (事件專區) -->
     <div id="interactive-container"></div>
 
-    <!-- 訓練加點區 (事件全數選完後才會解鎖) -->
     <div id="points-badge" style="display:none; background:#fff3e0; padding:10px; border-radius:8px; text-align:center; font-size:0.85em; font-weight:bold; color:#e65100; margin-bottom:10px; border:2px solid #ffe082;">
-      ⚡ 事件決策完畢！請分配本季累積點數（剩餘：<span id="skill-points">0</span> 點）
+      ⚡ 請分配自由點數（剩餘：<span id="skill-points">0</span> 點）
       <div class="train-grid">
-        <button class="train-btn" onclick="upgradeStat('pac')">+ 速度</button>
-        <button class="train-btn" onclick="upgradeStat('sho')">+ 射門</button>
-        <button class="train-btn" onclick="upgradeStat('pas')">+ 傳球</button>
-        <button class="train-btn" onclick="upgradeStat('dri')">+ 盤帶</button>
-        <button class="train-btn" onclick="upgradeStat('def')">+ 防守</button>
-        <button class="train-btn" onclick="upgradeStat('phy')">+ 體能</button>
+        <button class="train-btn" onclick="upgradeStat('pac')">+ 速度 <span id="cost-pac"></span></button>
+        <button class="train-btn" onclick="upgradeStat('sho')">+ 射門 <span id="cost-sho"></span></button>
+        <button class="train-btn" onclick="upgradeStat('pas')">+ 傳球 <span id="cost-pas"></span></button>
+        <button class="train-btn" onclick="upgradeStat('dri')">+ 盤帶 <span id="cost-dri"></span></button>
+        <button class="train-btn" onclick="upgradeStat('def')">+ 防守 <span id="cost-def"></span></button>
+        <button class="train-btn" onclick="upgradeStat('phy')">+ 體能 <span id="cost-phy"></span></button>
       </div>
     </div>
 
@@ -200,17 +187,19 @@
     window.history.replaceState({}, '', `?seed=${seed}`);
     const rng = mulberry32(hashString(seed));
 
+    // 擴充球隊資料庫 (Tier 1 ~ Tier 5)
     const realClubs = {
-      youth: ["曼城青訓", "皇馬青訓", "拉瑪西亞", "拜仁青訓"],
-      tier3: ["里茲聯", "桑德蘭", "赫塔費", "帕爾馬"],
-      tier2: ["阿斯頓維拉", "布萊頓", "皇家蘇斯達", "亞特蘭大"],
-      tier1: ["皇家馬德里", "曼徹斯特城", "阿森納", "拜仁慕尼黑", "巴塞隆納"]
+      tier5: ["神戶勝利船", "邁阿密國際", "利雅德勝利", "凱爾特人", "博卡青年", "洛杉磯FC"],
+      tier4: ["萊斯特城", "漢堡", "沙爾克04", "帕爾馬", "西班牙人", "桑德蘭"],
+      tier3: ["里茲聯", "赫塔費", "維羅納", "奧格斯堡", "圖盧茲", "波爾圖"],
+      tier2: ["阿斯頓維拉", "布萊頓", "皇家蘇斯達", "亞特蘭大", "法蘭克福", "里昂"],
+      tier1: ["皇家馬德里", "曼徹斯特城", "阿森納", "拜仁慕尼黑", "巴塞隆納", "國際米蘭", "巴黎聖日耳曼"]
     };
 
     const raceCaps = {
       euro:   { pac: 85, sho: 85, pas: 99, dri: 88, def: 99, phy: 88, name: "歐洲體系" },
       latam:  { pac: 92, sho: 99, pas: 90, dri: 99, def: 80, phy: 85, name: "美洲爆發" },
-      africa: { pac: 99, sho: 85, pas: 80, dri: 88, def: 85, phy: 99, name: "非洲神獸" }
+      africa: { pac: 99, sho: 85, pas: 80, dri: 88, def: 99, phy: 99, name: "非洲神獸" }
     };
 
     let player = {};
@@ -220,29 +209,34 @@
       let pos = document.getElementById('input-pos').value;
       let raceKey = document.getElementById('input-race').value;
       
+      // 依 Seed 決定起始球隊 (Tier 4 或 Tier 5)
+      let startTier = rng() > 0.5 ? 5 : 4;
+      let startPool = startTier === 5 ? realClubs.tier5 : realClubs.tier4;
+      let startClub = startPool[Math.floor(rng() * startPool.length)];
+
       player = {
         name: name,
         position: pos,
         race: raceKey,
         caps: raceCaps[raceKey],
         age: 17,
-        club: realClubs.youth[Math.floor(rng() * realClubs.youth.length)],
-        tier: 0,
-        pac: 55 + Math.floor(rng()*10),
-        sho: 55 + Math.floor(rng()*10),
-        pas: 55 + Math.floor(rng()*10),
-        dri: 55 + Math.floor(rng()*10),
-        def: 40 + Math.floor(rng()*10),
-        phy: 55 + Math.floor(rng()*10),
-        wage: 2000,
-        balance: 10000,
+        club: startClub,
+        tier: startTier,
+        // Seed 影響的靈敏初始能力值 (50 ~ 72 浮動)
+        pac: Math.floor(50 + rng() * 22),
+        sho: Math.floor(50 + rng() * 22),
+        pas: Math.floor(50 + rng() * 22),
+        dri: Math.floor(50 + rng() * 22),
+        def: Math.floor(40 + rng() * 20),
+        phy: Math.floor(50 + rng() * 22),
+        wage: startTier === 5 ? 1500 : 3000,
+        balance: 5000,
         skillPoints: 0,
-        trophies: [],
         lastGoals: 0,
         lastRating: "0.0",
         isRetired: false,
         pendingChoice: false,
-        eventsFinished: true // 是否已選完當季事件
+        eventsFinished: true
       };
 
       document.getElementById('setup-card').style.display = 'none';
@@ -250,7 +244,7 @@
       document.getElementById('seed-display').innerText = `Seed：${seed}`;
       document.getElementById('player-title').innerText = `⚽ ${player.name} 的職業生涯`;
 
-      addLog(`踏入足壇！${player.name} 出道於 <span class="highlight-club">${player.club}</span> (${player.caps.name})`);
+      addLog(`踏入足壇！${player.name} 出道加盟 <span class="highlight-club">${player.club}</span> (${player.caps.name})`);
       updateUI();
     }
 
@@ -258,11 +252,19 @@
       return Math.round((player.pac + player.sho + player.pas + player.dri + player.def + player.phy) / 6);
     }
 
+    // 計算升級該能力需要的技能點數
+    function getUpgradeCost(val) {
+      if (val < 60) return 1;
+      if (val < 75) return 2;
+      if (val < 85) return 3;
+      return 4; // 85 以上高昂升級代價
+    }
+
     function getMarketValue() {
       let ovr = getOVR();
       let val = Math.pow(ovr / 10, 3.5) * 1000;
       if (player.age > 30) val *= (1 - (player.age - 30) * 0.15);
-      return Math.max(100000, Math.round(val));
+      return Math.max(50000, Math.round(val));
     }
 
     function updateUI() {
@@ -275,17 +277,16 @@
       ['pac','sho','pas','dri','def','phy'].forEach(stat => {
         let val = player[stat];
         let cap = player.caps[stat];
+        let cost = getUpgradeCost(val);
         document.getElementById(`num-${stat}`).innerText = `${val} / ${cap}`;
         document.getElementById(`bar-${stat}`).style.width = `${(val / 99) * 100}%`;
+        document.getElementById(`cost-${stat}`).innerText = `(${cost}pt)`;
       });
 
       document.getElementById('market-value').innerText = `€${(getMarketValue()/1000000).toFixed(1)}M`;
       document.getElementById('weekly-wage').innerText = `€${player.wage.toLocaleString()}`;
       document.getElementById('bank-balance').innerText = `€${Math.round(player.balance).toLocaleString()}`;
 
-      document.getElementById('trophies-display').innerHTML = player.trophies.length > 0 ? player.trophies.join(' ') : '尚未獲得榮譽';
-
-      // 只有事件選擇完畢且有剩餘點數時才顯示訓練面板
       const pb = document.getElementById('points-badge');
       if (player.eventsFinished && player.skillPoints > 0) {
         pb.style.display = 'block';
@@ -309,104 +310,119 @@
       const li = document.createElement('li');
       li.innerHTML = `[${player.age}歲] ${text}`;
       logList.prepend(li);
-      // 自動捲動到最頂部
       document.querySelector('.ticker-box').scrollTop = 0;
     }
 
     function upgradeStat(stat) {
-      if (player.skillPoints <= 0) return;
-      if (player[stat] >= player.caps[stat]) {
-        alert(`已達到該種族的上限 (${player.caps[stat]})！`);
+      let cost = getUpgradeCost(player[stat]);
+      if (player.skillPoints < cost) {
+        alert(`技能點數不足！提升此階段需要 ${cost} 點。`);
         return;
       }
-      player[stat] = Math.min(player.caps[stat], player[stat] + 2);
-      player.skillPoints--;
+      if (player[stat] >= player.caps[stat]) {
+        alert(`已達到該種族的屬性上限 (${player.caps[stat]})！`);
+        return;
+      }
+      player[stat] += 1; // 每次僅升級 +1
+      player.skillPoints -= cost;
       updateUI();
     }
 
-    // 含有「直接影響自由點數」的事件庫
-    const interactiveEvents = [
+    // 包含自選「賭博規模」的事件庫
+    const gambleEvents = [
       {
-        title: "賽季特訓安排",
-        desc: "休賽季教練為你規劃了個人特訓方案：",
+        title: "地下賽事賭局",
+        desc: "休賽期朋友邀請你參與一場地下模擬盤口，你要怎麼押注？",
         choices: [
-          { text: "🎯 高強度戰術研修 (獲得 +3 點自由點數)", act: () => { player.skillPoints += 3; addLog("進行了高強度戰術研修，額外獲得 +3 自由點數！"); } },
-          { text: "🏖️ 放假休息放鬆體能 (+速度上限屬性 2 點)", act: () => { player.pac = Math.min(player.caps.pac, player.pac + 2); addLog("充分休息，速度基礎小幅提升。"); } }
+          { text: "🐤 謹慎小賭 (押 1 點數 | 60% 機率贏 2 點)", act: () => gamblePts(1, 2, 0.6) },
+          { text: "🐅 豪賭一把 (押 3 點數 | 40% 機率贏 7 點)", act: () => gamblePts(3, 7, 0.4) },
+          { text: "💀 孤注一擲 (押 5 點數 | 20% 機率贏 15 點)", act: () => gamblePts(5, 15, 0.2) },
+          { text: "🛡️ 拒絕賭博 (平穩訓練 +1 點數)", act: () => { player.skillPoints += 1; addLog("拒絕誘惑，專注訓練獲得 +1 點數。"); } }
         ]
       },
       {
-        title: "關鍵罰球執行",
-        desc: "最後時刻獲得點球，你要親自罰球還是讓給隊友？",
+        title: "加密貨幣與投資",
+        desc: "隊友向你推薦一個高風險的加密貨幣投資項目：",
         choices: [
-          { text: "⚽ 親自主罰 (成功獲得 +2 點數，失手扣 1 點)", act: () => { 
-            if(rng() > 0.3) { player.skillPoints += 2; addLog("🎯 穩穩罰進！展現大心臟，獲得 +2 自由點數！"); }
-            else { player.skillPoints = Math.max(0, player.skillPoints - 1); addLog("❌ 踢飛點球，信心受到打擊 (扣除 1 點數)。"); }
-          }},
-          { text: "🤝 讓給射手隊友進球 (+傳球屬性 2 點)", act: () => { player.pas = Math.min(player.caps.pas, player.pas + 2); addLog("無私助攻隊友，獲得團隊讚譽。"); } }
-        ]
-      },
-      {
-        title: "商業代言爭取",
-        desc: "知名運動品牌邀請你拍攝廣告：",
-        choices: [
-          { text: "💼 簽署代言合約 (獲得 €50,000 獎金)", act: () => { player.balance += 50000; addLog("順利簽約，獲得 €50,000 代言費。"); } },
-          { text: "⚽ 拒絕代言專心訓練 (獲得 +2 點自由點數)", act: () => { player.skillPoints += 2; addLog("專注於訓練，獲得 +2 自由點數！"); } }
+          { text: "💵 微量試水 (投入 €20,000 | 50% 翻倍，否則歸零)", act: () => gambleMoney(20000, 2, 0.5) },
+          { text: "💰 巨額重倉 (投入 €100,000 | 35% 獲利 3 倍，否則歸零)", act: () => gambleMoney(100000, 3, 0.35) },
+          { text: "❌ 不參與任何投資", act: () => addLog("謹慎理財，選擇不參與投資。") }
         ]
       }
     ];
 
+    function gamblePts(stake, winReward, winProb) {
+      if (player.skillPoints < stake) {
+        addLog(`❌ 技能點數不足 ${stake} 點，無法參與賭注，失去機會。`);
+        return;
+      }
+      player.skillPoints -= stake;
+      if (rng() < winProb) {
+        player.skillPoints += winReward;
+        addLog(`🎲 <span class="highlight-club">賭贏了！</span> 成功獲得 <strong>+${winReward}</strong> 技能點！`);
+      } else {
+        addLog(`🎲 <span class="risk-high">賭輸了...</span> 輸掉了 ${stake} 點技能點。`);
+      }
+    }
+
+    function gambleMoney(stake, multiplier, winProb) {
+      if (player.balance < stake) {
+        addLog(`❌ 存款不足 €${stake.toLocaleString()}，無法參與投資。`);
+        return;
+      }
+      player.balance -= stake;
+      if (rng() < winProb) {
+        let winAmt = stake * multiplier;
+        player.balance += winAmt;
+        addLog(`📈 <span class="highlight-club">投資暴漲！</span> 賺取了 €${winAmt.toLocaleString()} 收益！`);
+      } else {
+        addLog(`📉 <span class="risk-high">投資崩盤...</span> 損失了 €${stake.toLocaleString()}。`);
+      }
+    }
+
     function nextYear() {
       if (player.isRetired || player.pendingChoice) return;
       player.age++;
-      player.eventsFinished = false; // 標記為開始處理事件
+      player.eventsFinished = false;
 
       player.balance += player.wage * 52;
 
-      // 1. 抽籤基礎點數 (5 ~ 10 點)
-      let ptsGained = Math.floor(rng() * 6) + 5;
-      if (player.age <= 29) {
+      // 基礎自由點數（3~6 點）
+      let ptsGained = Math.floor(rng() * 4) + 3;
+      if (player.age <= 30) {
         player.skillPoints += ptsGained;
-        addLog(`⚡ 賽季結算抽籤！獲得 <strong>+${ptsGained}</strong> 點自由點數！`);
+        addLog(`⚡ 賽季結算！獲得 <strong>+${ptsGained}</strong> 自由點數。`);
       }
 
-      // 2. 比賽數據與難度加成
       let ovr = getOVR();
       let apps = Math.floor(28 + rng() * 10);
       let baseGoals = (player.sho * 0.3 + player.pac * 0.2) / 10;
       let goals = Math.max(0, Math.floor(apps * (baseGoals / 15) * (0.8 + rng() * 0.5)));
       let rating = (6.0 + (ovr / 30) + (goals / apps) * 2 + (rng() * 0.8 - 0.4)).toFixed(1);
-      
-      let winRatio = Math.min(0.8, (ovr + player.tier * 10) / 120);
-      if (rng() < winRatio) {
-        let matchBonus = player.tier + 1;
-        player.skillPoints += matchBonus;
-        addLog(`🏆 贏得高難度關鍵賽事，額外獲得 <strong>+${matchBonus}</strong> 點加成！`);
-      }
 
       player.lastGoals = goals;
       player.lastRating = rating;
       addLog(`📊 本季代表球隊出場 ${apps} 次，進球 ⚽ <strong>${goals}</strong> 個，評分 🌟 <strong>${rating}</strong>`);
 
-      // 3. 依序觸發 3 次選擇事件
+      // 觸發 2 次事件
       triggerNextEvent(0);
       updateUI();
     }
 
     function triggerNextEvent(index) {
-      if (index >= 3) {
-        // 3 個事件選擇結束，解鎖訓練加點
+      if (index >= 2) {
         player.eventsFinished = true;
-        if (rng() < 0.35 && player.tier < 3) triggerTransfer();
+        if (rng() < 0.40 && player.tier > 1) triggerTransfer();
         updateUI();
         return;
       }
 
       player.pendingChoice = true;
-      let ev = interactiveEvents[Math.floor(rng() * interactiveEvents.length)];
+      let ev = gambleEvents[Math.floor(rng() * gambleEvents.length)];
       
       let html = `
         <div class="modal-overlay">
-          <strong>📢 [事件 ${index+1}/3] ${ev.title}</strong>
+          <strong>📢 [決策事件 ${index+1}/2] ${ev.title}</strong>
           <p style="margin:4px 0 8px 0; font-size:0.9em;">${ev.desc}</p>
       `;
 
@@ -425,20 +441,19 @@
       player.pendingChoice = false;
       document.getElementById('interactive-container').innerHTML = '';
       updateUI();
-      // 進行下一個事件
       triggerNextEvent(eventIndex + 1);
     }
 
     function triggerTransfer() {
       player.pendingChoice = true;
-      let targetTier = player.tier + 1;
-      let pool = targetTier === 1 ? realClubs.tier3 : targetTier === 2 ? realClubs.tier2 : realClubs.tier1;
+      let targetTier = player.tier - 1; // 往更高層級跳槽 (Tier 數越小層級越高)
+      let pool = realClubs[`tier${targetTier}`];
       let clubA = pool[Math.floor(rng() * pool.length)];
 
       document.getElementById('interactive-container').innerHTML = `
         <div class="modal-overlay" style="border-color:#0288d1; background:#e1f5fe;">
-          <strong>📩 收到轉會邀約！</strong>
-          <button class="choice-btn" onclick="acceptTransfer('${clubA}', ${targetTier})">⚽ 加盟 <strong>${clubA}</strong> (週薪 €${Math.round(player.wage*1.8).toLocaleString()})</button>
+          <strong>📩 收到更高聯賽級別轉會邀約！</strong>
+          <button class="choice-btn" onclick="acceptTransfer('${clubA}', ${targetTier})">⚽ 加盟 <strong>${clubA}</strong> (週薪 €${Math.round(player.wage*1.6).toLocaleString()})</button>
           <button class="choice-btn" style="border-color:#757575;" onclick="rejectChoice()">✖ 拒絕，繼續留隊</button>
         </div>
       `;
@@ -448,17 +463,17 @@
     function acceptTransfer(club, tier) {
       player.club = club;
       player.tier = tier;
-      player.wage = Math.round(player.wage * 1.8);
+      player.wage = Math.round(player.wage * 1.6);
       player.pendingChoice = false;
       document.getElementById('interactive-container').innerHTML = '';
-      addLog(`✍️ 完成轉會！正式簽約加盟 <span class="highlight-club">${club}</span>！`);
+      addLog(`✍️ 完成轉會！正式加盟更高層級球隊 <span class="highlight-club">${club}</span>！`);
       updateUI();
     }
 
     function rejectChoice() {
       player.pendingChoice = false;
       document.getElementById('interactive-container').innerHTML = '';
-      addLog(`🤝 選擇留隊。`);
+      addLog(`🤝 選擇留隊繼續效力。`);
       updateUI();
     }
 
@@ -468,4 +483,4 @@
     }
   </script>
 </body>
-</html>
+          </html>
