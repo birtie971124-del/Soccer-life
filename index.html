@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>足球人生 (Football Career)</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #0d2310; /* 綠茵場風格背景 */
+      color: #333;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+    }
+    h1 { margin-top: 0; color: #1e4620; text-align: center; }
+    .status-bar {
+      text-align: center;
+      background: #e8f5e9;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      text-align: center;
+      background: #f1f8e9;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .stat-box { font-size: 0.9em; font-weight: bold; }
+    .stat-value { font-size: 1.2em; color: #1b5e20; display: block; margin-top: 4px; }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover { background: #1b5e20; }
+    .share-btn { background: #0288d1; }
+    .share-btn:hover { background: #01579b; }
+    ul { padding-left: 20px; line-height: 1.6; }
+    .log-item { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>⚽ 足球人生模擬器</h1>
+    <p style="text-align:center; color:#666;" id="seed-display">Seed: 加載中...</p>
+    
+    <div class="status-bar" id="player-status">
+      位置：前鋒 | 目前效力：青訓俱樂部
+    </div>
+
+    <div class="stats">
+      <div class="stat-box">年齡<span class="stat-value" id="age">17</span></div>
+      <div class="stat-box">射門/防守<span class="stat-value" id="shooting">55</span></div>
+      <div class="stat-box">傳球/盤帶<span class="stat-value" id="passing">55</span></div>
+      <div class="stat-box">體能/速度<span class="stat-value" id="stamina">60</span></div>
+    </div>
+
+    <button id="next-year-btn" onclick="nextYear()">推進一個賽季 (Next Season)</button>
+    <button class="share-btn" onclick="copyShareLink()">複製遊戲連結分享 (帶 Seed)</button>
+  </div>
+
+  <div class="card">
+    <h3>📜 職業生涯履歷與榮譽</h3>
+    <ul id="career-log"></ul>
+  </div>
+
+  <script>
+    // --- 1. PRNG 隨機數生成器 ---
+    function mulberry32(a) {
+      return function() {
+        var t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      }
+    }
+
+    function hashString(str) {
+      let h1 = 1779033703, h2 = 3144134277;
+      for (let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      return h1 ^ h2;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let seed = urlParams.get('seed');
+    if (!seed) {
+      seed = Math.random().toString(36).substring(2, 10);
+      window.history.replaceState({}, '', `?seed=${seed}`);
+    }
+    
+    document.getElementById('seed-display').innerText = `目前 Seed：${seed}`;
+    const rng = mulberry32(hashString(seed));
+
+    // --- 2. 足球員資料初始化 ---
+    const positions = ["前鋒 (ST)", "邊鋒 (LW/RW)", "進攻中場 (CAM)", "防守中場 (CDM)", "中後衛 (CB)"];
+    const clubs = ["青訓學院", "次級聯賽隊伍", "聯賽中游球隊", "歐洲豪門俱樂部"];
+
+    let player = {
+      age: 17,
+      position: positions[Math.floor(rng() * positions.length)],
+      clubLevel: 0, // 0: 青訓, 1: 低階, 2: 中游, 3: 豪門
+      shooting: 50 + Math.floor(rng() * 15),
+      passing: 50 + Math.floor(rng() * 15),
+      stamina: 55 + Math.floor(rng() * 15),
+      isRetired: false
+    };
+
+    // 足球專屬事件池
+    const events = [
+      { text: "在青訓營展現驚人天賦，成功簽下第一份職業合約！", sh: 4, pa: 4, st: 3 },
+      { text: "聯賽表現優異，攻入關鍵進球幫助球隊獲勝！", sh: 5, pa: 3, st: 2 },
+      { text: "休賽季進行魔鬼特訓，體能與對抗性大幅增強。", sh: 2, pa: 2, st: 6 },
+      { text: "獲得國家隊徵召，首次代表國家出戰國際賽！", sh: 4, pa: 4, st: 4 },
+      { text: "不幸遭遇十字韌帶拉傷，缺席了大部分賽季。", sh: -6, pa: -4, st: -8 },
+      { text: "被歐洲豪門相中，完成高價轉會！", upgradeClub: true, sh: 3, pa: 3, st: 3 },
+      { text: "作為主力贏得聯賽冠軍，個人榮獲最佳陣容！", sh: 6, pa: 6, st: 4 },
+      { text: "榮獲「金球獎 (Ballon d'Or)」，登頂世界足壇之巔！", sh: 8, pa: 8, st: 5 },
+      { text: "遭遇戰術陣型調整，發揮空間受限，表現平平。", sh: -2, pa: -1, st: 0 }
+    ];
+
+    function updateUI() {
+      document.getElementById('age').innerText = player.age;
+      document.getElementById('shooting').innerText = player.shooting;
+      document.getElementById('passing').innerText = player.passing;
+      document.getElementById('stamina').innerText = player.stamina;
+      document.getElementById('player-status').innerText = `位置：${player.position} | 目前效力：${clubs[player.clubLevel]}`;
+    }
+
+    function addLog(text) {
+      const logList = document.getElementById('career-log');
+      const li = document.createElement('li');
+      li.className = 'log-item';
+      li.innerHTML = `<strong>${player.age} 歲：</strong> ${text}`;
+      logList.prepend(li);
+    }
+
+    // 初始記錄
+    addLog(`踏入足壇！出道位置：${player.position}，初始能力：射門/防守 ${player.shooting} | 傳球 ${player.passing} | 體能 ${player.stamina}`);
+    updateUI();
+
+    // --- 3. 賽季推進邏輯 ---
+    function nextYear() {
+      if (player.isRetired) return;
+
+      player.age++;
+
+      // 隨機抽取事件
+      const eventIndex = Math.floor(rng() * events.length);
+      const evt = events[eventIndex];
+
+      // 轉會邏輯
+      if (evt.upgradeClub && player.clubLevel < clubs.length - 1) {
+        player.clubLevel++;
+      }
+
+      // 老化衰退機制 (30 歲後體能下降，33 歲後技術與體能加速下降)
+      let declineStamina = player.age > 30 ? Math.floor(rng() * 4) + 1 : 0;
+      let declineTech = player.age > 33 ? Math.floor(rng() * 3) + 1 : 0;
+
+      player.shooting = Math.max(0, player.shooting + evt.sh - declineTech);
+      player.passing = Math.max(0, player.passing + evt.pa - declineTech);
+      player.stamina = Math.max(0, player.stamina + evt.st - declineStamina);
+
+      let logText = evt.text;
+      if (declineStamina > 0 || declineTech > 0) {
+        logText += ` <span style="color:#c62828;">(受年齡影響體能與能力開始下滑)</span>`;
+      }
+      addLog(logText);
+
+      // 引退條件：年滿 38 歲，或體能低於 35
+      if (player.age >= 38 || player.stamina < 35) {
+        player.isRetired = true;
+        addLog(`<strong>🏆 宣布挂靴引退！結束了長達 ${player.age - 17} 年的傳奇足球生涯。</strong>`);
+        const btn = document.getElementById('next-year-btn');
+        btn.disabled = true;
+        btn.innerText = "已引退 (可分享 Seed 戰績)";
+        btn.style.background = "#9e9e9e";
+      }
+
+      updateUI();
+    }
+
+    function copyShareLink() {
+      navigator.clipboard.writeText(window.location.href);
+      alert("已複製遊戲連結！朋友開啟此連結將會體驗一模一樣的足球生涯故事。");
+    }
+  </script>
+</body>
+  </html>
