@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>職業足球人生 7.0</title>
+  <title>職業足球人生 9.1 - 金球獎優化版</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -57,16 +57,19 @@
     .choice-btn { background: #ffffff; color: #2e7d32; border: 1.5px solid #2e7d32; margin-top: 6px; text-align: left; padding: 10px; font-size: 0.85em; width: 100%; cursor: pointer; border-radius: 6px; font-weight: bold; }
     .choice-btn:active { background: #e8f5e9; }
     .event-card { background: #fff8e1; border: 1.5px solid #ffe082; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+    .report-card { background: #e3f2fd; border: 2px solid #2196f3; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+    .report-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 0.85em; margin: 8px 0; }
+    .report-item { background: #ffffff; padding: 8px; border-radius: 6px; border: 1px solid #bbdefb; }
     .highlight { color: #0288d1; font-weight: bold; }
     .danger { color: #d32f2f; font-weight: bold; }
-    .gold { color: #f57f17; font-weight: bold; }
+    .gold { color: #d4af37; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <!-- 1. 角色創建 -->
   <div class="card" id="setup-card">
-    <h1>⚽ 職業足球人生 7.0</h1>
+    <h1>⚽ 職業足球人生 9.1</h1>
     <div class="setup-group">
       <label>球員姓名：</label>
       <input type="text" id="input-name" value="天才前鋒">
@@ -124,6 +127,20 @@
       <div class="bar-row"><span class="bar-label">體能 (PHY)</span><div class="bar-bg"><div class="bar-fill" id="bar-phy"></div></div><span class="bar-num" id="num-phy"></span></div>
     </div>
 
+    <!-- 年度表現報告面板 -->
+    <div id="season-report-section" class="report-card" style="display:none;">
+      <div class="section-title" id="report-title">📊 本賽季表現回顧：</div>
+      <div class="report-grid">
+        <div class="report-item">效力球隊：<b id="rep-club">-</b></div>
+        <div class="report-item">出場場次：<b id="rep-apps">0</b> 場</div>
+        <div class="report-item">進球總數：<b id="rep-goals">0</b> 球</div>
+        <div class="report-item">平均評分：<b id="rep-rating">0.0</b></div>
+        <div class="report-item">賽季收入：<b id="rep-income">+€0</b></div>
+        <div class="report-item">獲得榮譽：<b id="rep-trophy" class="gold">無</b></div>
+      </div>
+      <button type="button" style="background:#1976d2;" onclick="confirmNextSeason()">確認報告，進入下一賽季 👉</button>
+    </div>
+
     <!-- 突發事件面板 -->
     <div id="event-section" class="event-card" style="display:none;">
       <div class="section-title" id="event-title">📢 突發事件：</div>
@@ -159,7 +176,7 @@
       <button type="button" class="choice-btn" style="border-color:#757575; color:#555;" onclick="rejectTransfer()">✖ 拒絕邀約，繼續留隊</button>
     </div>
 
-    <button type="button" id="next-year-btn" onclick="nextSeason()">進行下一個賽季 (Next Season)</button>
+    <button type="button" id="next-year-btn" onclick="processSeason()">結算本賽季表現 (Review Season)</button>
   </div>
 
   <script>
@@ -195,9 +212,9 @@
       p = {
         name: name, position: pos, race: raceKey, caps: raceCaps[raceKey],
         age: 17, club: startClub, tier: startTier,
-        pac: Math.floor(52 + rand() * 15), sho: Math.floor(52 + rand() * 15),
-        pas: Math.floor(52 + rand() * 15), dri: Math.floor(52 + rand() * 15),
-        def: Math.floor(40 + rand() * 15), phy: Math.floor(50 + rand() * 15),
+        pac: Math.floor(55 + rand() * 15), sho: Math.floor(55 + rand() * 15),
+        pas: Math.floor(55 + rand() * 15), dri: Math.floor(55 + rand() * 15),
+        def: Math.floor(45 + rand() * 15), phy: Math.floor(52 + rand() * 15),
         wage: startTier === 5 ? 1500 : 3000, balance: 5000, skillPoints: 0,
         isInjured: false, injuryTurns: 0,
         trophies: 0, ballonDor: 0,
@@ -311,7 +328,7 @@
         },
         {
           title: "🌍 國家隊緊急徵召",
-          desc: "你獲得國家隊徵召參加盃賽！",
+          desc: "你獲得國家隊徵召參加國際盃賽！",
           c1: "全力以赴出戰",
           c2: "以傷病為理由婉拒留隊",
           a1: function() { p.trophies += 1; addLog("🏆 隨國家隊創造歷史，生涯新增 1 座國家隊榮譽！"); },
@@ -324,6 +341,27 @@
           c2: "堅守歐洲賽場",
           a1: function() { p.wage *= 3; p.balance += 300000; p.tier = 5; p.club = "利雅德勝利"; addLog("💰 你前往中東開啟淘金之旅！"); },
           a2: function() { addLog("👑 你婉拒了金錢誘惑，留在歐洲頂級舞台！"); }
+        },
+        {
+          title: "🥊 球場衝突領到紅牌",
+          desc: "關鍵比賽中被對方後衛惡意挑釁，你有些失控...",
+          c1: "忍氣吞聲，向裁判檢舉",
+          c2: "當場動手推擠！(遭到禁賽處分)",
+          a1: function() { p.pas = Math.min(p.caps.pas, p.pas + 1); addLog("🧠 控制住了脾氣，展現職業素養 (+1 傳球)。"); },
+          a2: function() { p.isInjured = true; p.injuryTurns = 1; addLog("🟥 領到紅牌並遭到追加禁賽 1 季！"); }
+        },
+        {
+          title: "👨‍🏫 聘請私人體能教練",
+          desc: "著名私人教練表示可以為你制定獨家飲食與訓練菜單！",
+          c1: "花費 €30,000 聘請 (體能與速度提升)",
+          c2: "太貴了，靠隊內訓練就好",
+          a1: function() { 
+            if(p.balance >= 30000) {
+              p.balance -= 30000; p.phy = Math.min(p.caps.phy, p.phy + 3); p.pac = Math.min(p.caps.pac, p.pac + 2);
+              addLog("💪 私人教練效果顯著！體能 +3，速度 +2！");
+            } else { addLog("💸 存款不足，無法支付私人教練費用。"); }
+          },
+          a2: function() { addLog("☕ 決定節省開支，繼續常規訓練。"); }
         }
       ];
 
@@ -357,95 +395,45 @@
       updateUI();
     }
 
-    function nextSeason() {
+    function processSeason() {
       if (hasPendingEvent) {
         alert('請先處理當前發生的突發事件！');
         return;
       }
 
-      p.age++;
-      p.balance += p.wage * 52;
-
-      if (p.age > 32) {
-        p.pac = Math.max(40, p.pac - Math.floor(rand() * 3));
-        p.phy = Math.max(40, p.phy - Math.floor(rand() * 2));
-        addLog('📉 <span class="danger">年齡漸長，速度與體能略有下降...</span>');
-      }
-
-      if (p.age >= 40) {
-        p.isRetired = true;
-        alert('🎉 恭喜！你以 ' + p.age + ' 歲高齡宣告退役！\n最終累積：' + p.trophies + ' 座冠軍，' + p.ballonDor + ' 次金球獎！');
-        addLog('👑 <span class="gold">【生涯結束】傳奇球星正式退役！</span>');
-        document.getElementById('next-year-btn').disabled = true;
-        document.getElementById('next-year-btn').innerText = '職業生涯已結束';
-        return;
-      }
-
-      if (p.isInjured) {
-        p.injuryTurns--;
-        if (p.injuryTurns <= 0) {
-          p.isInjured = false;
-          addLog('🎉 傷癒復出，重新回歸比賽！');
-        } else {
-          addLog('🚑 傷勢恢復中... (還需休養 ' + p.injuryTurns + ' 季)');
-        }
-      }
+      var yearlyIncome = p.wage * 52;
+      p.balance += yearlyIncome;
 
       var ovr = getOVR();
       var apps = p.isInjured ? Math.floor(rand() * 8) : (28 + Math.floor(rand() * 10));
       var goals = Math.floor(apps * (p.sho / 100) * (0.7 + rand() * 0.5));
-      var rating = (6.0 + (ovr / 30) + (rand() * 0.5)).toFixed(1);
+      var rating = (6.2 + (ovr / 30) + (rand() * 0.4)).toFixed(1);
 
-      addLog('📊 本季出場 ' + apps + ' 場，進球 ⚽ ' + goals + ' 個，平均評分 🌟 ' + rating);
+      var reportTrophy = "無";
 
-      if (ovr > 78 && rand() < 0.35) {
+      // 🏆 聯賽冠軍判定
+      if (ovr >= 75 && rand() < 0.4) {
         p.trophies += 1;
+        reportTrophy = "🏆 聯賽冠軍";
         addLog('🏆 <span class="gold">恭喜！隨隊順利捧起聯賽冠軍獎盃！</span>');
       }
 
-      if (ovr >= 88 && rating >= 8.2 && rand() < 0.35) {
+      // 🥇 金球獎判定邏輯優化（門檻降至 OVR >= 82，更易獲獎）
+      var ballonChance = 0;
+      if (ovr >= 82) ballonChance = (ovr - 80) * 0.12; // 82評分約有24%機率，90評分約有100%機率
+      
+      if (ovr >= 82 && !p.isInjured) {
+        addLog('✨ <span class="highlight">憑藉本季優異表現，你入圍了《法國足球》金球獎最後候選名單！</span>');
+      }
+
+      if (rand() < ballonChance && !p.isInjured) {
         p.ballonDor += 1;
         p.trophies += 1;
-        addLog('🥇 <span class="gold">✨【最高榮譽】榮獲歐洲金球獎 (Ballon d\'Or)！</span>');
+        reportTrophy = (reportTrophy === "無") ? "🥇 金球獎 (Ballon d'Or)" : reportTrophy + " + 🥇 金球獎";
+        addLog('🥇 <span class="gold">✨【最高榮譽】獲頒《法國足球》金球獎 (Ballon d\'Or)！登頂世界之巔！</span>');
       }
 
-      p.trainingDone = false;
+      addLog('📊 本季出場 ' + apps + ' 場，進球 ⚽ ' + goals + ' 個，平均評分 🌟 ' + rating);
 
-      if (!p.isInjured && rand() < 0.40 && p.tier > 1) {
-        var targetTier = p.tier - 1;
-        var pool = realClubs['tier' + targetTier];
-        var targetClub = pool[Math.floor(rand() * pool.length)];
-        pendingOffer = { club: targetClub, tier: targetTier };
-
-        document.getElementById('transfer-title').innerText = '📩 收到來自豪門 ' + targetClub + ' 的轉會邀約！';
-        document.getElementById('transfer-section').style.display = 'block';
-      }
-
-      if (rand() < 0.50 && !p.isInjured) {
-        triggerRandomEvent();
-      }
-
-      updateUI();
-    }
-
-    function acceptTransfer() {
-      if (pendingOffer) {
-        p.club = pendingOffer.club;
-        p.tier = pendingOffer.tier;
-        p.wage = Math.round(p.wage * 1.6);
-        addLog('✍️ 正式轉會至 <span class="highlight">' + p.club + '</span>，週薪獲得大幅提升！');
-        document.getElementById('transfer-section').style.display = 'none';
-        pendingOffer = null;
-        updateUI();
-      }
-    }
-
-    function rejectTransfer() {
-      addLog('🤝 拒絕轉會，選擇繼續留在 ' + p.club);
-      document.getElementById('transfer-section').style.display = 'none';
-      pendingOffer = null;
-      updateUI();
-    }
-  </script>
-</body>
-  </html>
+      // 展示年度表現報告
+      document.getElementById('report-title').inner
